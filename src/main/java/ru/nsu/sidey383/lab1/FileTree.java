@@ -1,100 +1,95 @@
 package ru.nsu.sidey383.lab1;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ru.nsu.sidey383.lab1.model.*;
+import ru.nsu.sidey383.lab1.model.files.DirectoryFile;
+import ru.nsu.sidey383.lab1.model.files.DirectoryLinkFile;
+import ru.nsu.sidey383.lab1.model.files.File;
+import ru.nsu.sidey383.lab1.options.FileTreeOptions;
+import ru.nsu.sidey383.lab1.walker.FileVisitor;
+import ru.nsu.sidey383.lab1.walker.NextAction;
+import ru.nsu.sidey383.lab1.walker.SystemFileWalker;
+import ru.nsu.sidey383.lab1.walker.SystemFileWalkerOptions;
 
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class FileTree {
 
-    private Map<Path, DirectoryFile> directories = new HashMap<>();
-    private Map<Path, SymLinkFile> symLinks = new HashMap<>();
+    private final Path basePath;
 
-    private Path basePath;
+    private SystemFileWalker walker = null;
 
-    private File baseFile;
+    public FileTree(Path basePath) {
+        this.basePath = basePath;
+    }
 
-    public FileTree(Path path) {
-        this.basePath = path.toAbsolutePath();
+    public void calculateTree(FileTreeOptions options) throws IOException {
+        calculateTree(options.getWalkerOptions());
+    }
+
+    public void calculateTree(SystemFileWalkerOptions... options) throws IOException {
+        walker = SystemFileWalker.walkFiles(basePath, new TreeVisitor(), options);
+        List<IOException> exceptionList = walker.getSuppressedExceptions();
+        if (!exceptionList.isEmpty()) {
+            System.err.println("File walker errors:");
+            for (IOException exception : exceptionList) {
+                exception.printStackTrace();
+            }
+        }
     }
 
     @Nullable
     public File getBaseFile() {
-        return baseFile;
+        return walker == null ? null : walker.getRootFile();
     }
 
-    public void initTree() throws IOException {
-        switch (FileType.getFileType(basePath)) {
-            case DIRECTORY -> {
-                baseFile = new DirectoryFile(basePath);
-                directories.put(basePath, (DirectoryFile) baseFile);
-                Files.walkFileTree(basePath, new Visitor());
+    private class TreeVisitor implements FileVisitor {
+
+        private final Set<DirectoryLinkFile> linkFiles = new HashSet<>();
+
+        private void addParent(File f) {
+            DirectoryFile parent = f.getParent();
+            if (parent != null)
+                parent.addChild(f);
+        }
+
+        @Override
+        public void visitFile(File file) {
+            addParent(file);
+        }
+
+        @Override
+        public NextAction preVisitDirectory(DirectoryFile directory) {
+            System.out.println(directory.getClass());
+            if (directory instanceof DirectoryLinkFile link) {
+                if (linkFiles.contains(link))
+                    return NextAction.STOP;
+                linkFiles.add(link);
             }
-            case REGULAR -> baseFile = new RegularFile(basePath);
-            case SYM_LINK -> baseFile = new SymLinkFile(basePath);
-            default -> baseFile = new OtherFile(basePath);
+            return NextAction.CONTINUE;
+        }
+
+        @Override
+        public void postVisitDirectory(DirectoryFile directory) {
+            addParent(directory);
+        }
+
+        @Override
+        public NextAction pathVisitError(Path path, IOException e) {
+            System.err.format("Can't read metadata of file %s\n", path);
+            e.printStackTrace();
+            return NextAction.CONTINUE;
+        }
+
+        @Override
+        public NextAction realPathError(Path path, IOException e) {
+            System.err.format("Error when trying to get the real path of file %s\n", path);
+            e.printStackTrace();
+            return NextAction.TRY_OTHER;
         }
     }
 
-    private class Visitor implements FileVisitor<Path> {
-
-        private Visitor() {}
-
-        private void addToParent(@NotNull File f) {
-            Path parent = f.getPath().getParent();
-            if (parent != null && directories.containsKey(parent)) {
-                directories.get(parent).addChild(f);
-            }
-        }
-
-        @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-            dir = dir.toAbsolutePath();
-            DirectoryFile file = new DirectoryFile(dir);
-            if (!baseFile.equals(file))
-                directories.put(dir, file);
-            return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
-            path = path.toAbsolutePath();
-            File file = null;
-            if (attrs.isSymbolicLink()) {
-                file = new SymLinkFile(path);
-                symLinks.put(path, (SymLinkFile) file);
-            }
-            if (attrs.isRegularFile()) {
-                file = new RegularFile(path);
-            }
-            if (file == null) {
-                file = new OtherFile(path);
-            }
-            addToParent(file);
-            return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-            System.out.println("visitFileFailed: " + file.toString() + (exc != null ? exc.getMessage() : ""));
-            return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-            DirectoryFile file = directories.get(dir);
-            if (file != null) {
-                addToParent(file);
-            }
-            return FileVisitResult.CONTINUE;
-        }
-    }
 }

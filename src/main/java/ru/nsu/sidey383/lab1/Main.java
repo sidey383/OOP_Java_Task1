@@ -1,53 +1,28 @@
 package ru.nsu.sidey383.lab1;
 
-import ru.nsu.sidey383.lab1.model.*;
+import ru.nsu.sidey383.lab1.options.DiskUsageOptions;
+import ru.nsu.sidey383.lab1.utils.FilePrintUtils;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 public class Main {
 
     private Main() {}
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         if (args.length < 1) {
             System.out.println(usage());
             return;
         }
-        Path path = Path.of(args[0]);
-        if (!Files.exists(path)) {
-            System.out.println(usage());
-            return;
-        }
-        FileTree fileTree = new FileTree(path);
-        try {
-            fileTree.initTree();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        StringBuilder builder = new StringBuilder();
-        appendFilesString(builder, fileTree.getBaseFile(), 0);
-        System.out.println(builder);
-
+        DiskUsageOptions options = readOptions(args);
+        FileTree fileTree = new FileTree(options.getFilePath());
+        fileTree.calculateTree(options);
+        FilePrintUtils.printFiles(fileTree.getBaseFile(), options);
     }
 
-    private static void appendFilesString(StringBuilder builder, File file, int depth) {
-        if (file == null) return;
-        builder.append(" ".repeat(depth));
-        switch (file) {
-            case DirectoryFile directoryFile -> {
-                builder.append(directoryFile).append("\n");
-                directoryFile.getFilesStream().forEach(f -> appendFilesString(builder, f, depth + 1));
-            }
-            case SymLinkFile symLinkFile -> {
-                builder.append(symLinkFile).append("\n");
-                symLinkFile.getFilesStream().forEach(f -> appendFilesString(builder, f, depth + 1));
-            }
-            default ->  {
-                builder.append(file).append("\n");
-            }
-        }
+    private static DiskUsageOptions readOptions(String[] args) {
+        DiskUsageOptions.DiskUsageOptionsBuilder builder = DiskUsageOptions.builder();
+        return builder.useSymLink(true).setMaxDepth(3).build();
     }
 
     private static String usage() {
