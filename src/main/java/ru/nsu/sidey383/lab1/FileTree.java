@@ -2,19 +2,15 @@ package ru.nsu.sidey383.lab1;
 
 import org.jetbrains.annotations.Nullable;
 import ru.nsu.sidey383.lab1.model.files.DirectoryFile;
-import ru.nsu.sidey383.lab1.model.files.DirectoryLinkFile;
 import ru.nsu.sidey383.lab1.model.files.File;
-import ru.nsu.sidey383.lab1.options.FileTreeOptions;
 import ru.nsu.sidey383.lab1.walker.FileVisitor;
 import ru.nsu.sidey383.lab1.walker.NextAction;
 import ru.nsu.sidey383.lab1.walker.SystemFileWalker;
-import ru.nsu.sidey383.lab1.walker.SystemFileWalkerOptions;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class FileTree {
 
@@ -26,12 +22,8 @@ public class FileTree {
         this.basePath = basePath;
     }
 
-    public void calculateTree(FileTreeOptions options) throws IOException {
-        calculateTree(options.getWalkerOptions());
-    }
-
-    public void calculateTree(SystemFileWalkerOptions... options) throws IOException {
-        walker = SystemFileWalker.walkFiles(basePath, new TreeVisitor(), options);
+    public void calculateTree() throws IOException {
+        walker = SystemFileWalker.walkFiles(basePath, new TreeVisitor());
         List<IOException> exceptionList = walker.getSuppressedExceptions();
         if (!exceptionList.isEmpty()) {
             System.err.println("File walker errors:");
@@ -48,7 +40,7 @@ public class FileTree {
 
     private class TreeVisitor implements FileVisitor {
 
-        private final Set<DirectoryLinkFile> linkFiles = new HashSet<>();
+        private final HashSet<File> passedLinks = new HashSet<>();
 
         private void addParent(File f) {
             DirectoryFile parent = f.getParent();
@@ -63,19 +55,20 @@ public class FileTree {
 
         @Override
         public NextAction preVisitDirectory(DirectoryFile directory) {
-            System.out.println(directory.getClass());
-            if (directory instanceof DirectoryLinkFile link) {
-                if (linkFiles.contains(link))
+            if (directory.getFileType().isLink()) {
+                if (passedLinks.contains(directory)) {
+                    addParent(directory);
                     return NextAction.STOP;
-                linkFiles.add(link);
+                } else {
+                    passedLinks.add(directory);
+                }
             }
+            addParent(directory);
             return NextAction.CONTINUE;
         }
 
         @Override
-        public void postVisitDirectory(DirectoryFile directory) {
-            addParent(directory);
-        }
+        public void postVisitDirectory(DirectoryFile directory) {}
 
         @Override
         public NextAction pathVisitError(Path path, IOException e) {

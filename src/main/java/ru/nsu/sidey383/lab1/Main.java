@@ -16,7 +16,7 @@ public class Main {
         }
         DiskUsageOptions options = readOptions(args);
         FileTree fileTree = new FileTree(options.getFilePath());
-        fileTree.calculateTree(options);
+        fileTree.calculateTree();
         FilePrintUtils.printFiles(fileTree.getBaseFile(), options);
     }
 

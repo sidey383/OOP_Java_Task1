@@ -1,5 +1,6 @@
 package ru.nsu.sidey383.lab1.utils;
 
+import ru.nsu.sidey383.lab1.model.FileType;
 import ru.nsu.sidey383.lab1.model.files.DirectoryFile;
 import ru.nsu.sidey383.lab1.model.files.File;
 import ru.nsu.sidey383.lab1.options.FilesPrintOptions;
@@ -15,7 +16,7 @@ public final class FilePrintUtils {
         Stack<Iterator<File>> dirStack = new Stack<>();
         File now = root;
         do {
-            System.out.println("  ".repeat(dirStack.size()) + now.toString());
+            System.out.println("  ".repeat(dirStack.size()) + prettyFileString(now));
             if (now instanceof DirectoryFile dir) {
                 dirStack.add(dir.getChildren().listIterator());
             }
@@ -29,6 +30,19 @@ public final class FilePrintUtils {
                 dirStack.pop();
             }
         } while (now != null);
+    }
+
+    public static String prettyFileString(File file) {
+        StringBuilder builder = new StringBuilder();
+        FileType type = file.getFileType();
+        if (type.isLink()) {
+            builder.append("*");
+        }
+        if (type.isDirectory()) {
+            builder.append("/");
+        }
+        builder.append(file.getOriginalPath().getFileName()).append(" [").append(SizeSuffix.BYTE.getSuffix(file.getSize())).append("]");
+        return builder.toString();
     }
 
 }

@@ -12,23 +12,14 @@ import java.util.*;
 
 public class SystemFileWalker {
 
-    private final LinkOption[] createFileOptions;
-
-    private final LinkOption[] realPathOptions;
-
     private final FileVisitor visitor;
 
     private final File rootFile;
 
     private List<IOException> exceptionList;
 
-    private final boolean useRealPath;
-
-    private SystemFileWalker(File dirFile, FileVisitor visitor, boolean useRealPath, LinkOption[] createFileOptions, LinkOption[] realPathOptions) {
+    private SystemFileWalker(File dirFile, FileVisitor visitor) {
         this.rootFile = dirFile;
-        this.useRealPath = useRealPath;
-        this.createFileOptions = createFileOptions;
-        this.realPathOptions = realPathOptions;
         this.visitor = visitor;
     }
 
@@ -41,7 +32,7 @@ public class SystemFileWalker {
 
         public DirectoryNode(DirectoryFile file) throws IOException {
             this.file = file;
-            this.stream = Files.newDirectoryStream(this.file.getPath());
+            this.stream = Files.newDirectoryStream(this.file.getResolvedPath());
             this.iterator = this.stream.iterator();
         }
 
@@ -87,7 +78,7 @@ public class SystemFileWalker {
 
     private void visitFile(Path path, ArrayDeque<DirectoryNode> queue, DirectoryFile parent) {
         try {
-            File file = File.createFile(path, useRealPath, createFileOptions);
+            File file = File.createFile(path);
             file.setParent(parent);
             if (file instanceof DirectoryFile directoryFile) {
                 if (visitor.preVisitDirectory(directoryFile) == NextAction.CONTINUE) {
@@ -105,7 +96,7 @@ public class SystemFileWalker {
         try {
             queue.add(new DirectoryNode(rootDir));
         } catch (IOException e) {
-            visitor.pathVisitError(rootDir.getPath(), e);
+            visitor.pathVisitError(rootDir.getOriginalPath(), e);
         }
         return !queue.isEmpty();
     }
@@ -133,19 +124,9 @@ public class SystemFileWalker {
         return new ArrayList<>(exceptionList);
     }
 
-    public static SystemFileWalker walkFiles(Path path, FileVisitor visitor, SystemFileWalkerOptions... options) throws IOException {
-        LinkOption[] createFileOptions = new LinkOption[0];
-        boolean useRealPath = false;
-        LinkOption[] realPathOptions = new LinkOption[0];
-        for (SystemFileWalkerOptions option : options) {
-            switch (option) {
-                case NO_FOLLOW_LINKS -> createFileOptions = new LinkOption[]{LinkOption.NOFOLLOW_LINKS};
-                case TO_REAL_PATH -> useRealPath = true;
-                case NO_FOLLOW_LINKS_IN_REAL_PATH -> realPathOptions = new LinkOption[]{LinkOption.NOFOLLOW_LINKS};
-            }
-        }
-        File rootFile = File.createFile(path, useRealPath, createFileOptions);
-        SystemFileWalker walker = new SystemFileWalker(rootFile, visitor, useRealPath, createFileOptions, realPathOptions);
+    public static SystemFileWalker walkFiles(Path path, FileVisitor visitor) throws IOException {
+        File rootFile = File.createFile(path);
+        SystemFileWalker walker = new SystemFileWalker(rootFile, visitor);
         walker.walk();
         return walker;
     }

@@ -1,13 +1,9 @@
 package ru.nsu.sidey383.lab1.walker;
 
+
 import java.nio.file.LinkOption;
-import java.nio.file.Path;
 
 public enum SystemFileWalkerOptions {
-    /**
-     * Enable {@link java.nio.file.LinkOption} in {@link ru.nsu.sidey383.lab1.model.files.File#createFile(Path, boolean, LinkOption[])}
-     * Do not follow symbolic links.
-     * **/
     NO_FOLLOW_LINKS,
     /**
      * Apply {@link java.nio.file.Path#toRealPath(LinkOption...)} for every Path.
