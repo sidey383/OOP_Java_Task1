@@ -1,6 +1,8 @@
 package ru.nsu.sidey383.lab1.options;
 
 import org.jetbrains.annotations.NotNull;
+import ru.nsu.sidey383.lab1.write.SizeSuffix;
+import ru.nsu.sidey383.lab1.write.SizeSuffixIEC;
 
 import java.nio.file.Path;
 
@@ -14,12 +16,15 @@ public class DiskUsageOptions implements FileTreeOptions, FilesPrintOptions {
 
     private final Path filePath;
 
+    private final SizeSuffix sizeSuffix;
 
-    private DiskUsageOptions(boolean followLinks, int maxDepth, int fileInDirLimit, @NotNull Path filePath) {
+
+    private DiskUsageOptions(boolean followLinks, int maxDepth, int fileInDirLimit, @NotNull Path filePath, @NotNull SizeSuffix sizeSuffix) {
         this.followLinks = followLinks;
         this.maxDepth = maxDepth;
         this.fileInDirLimit = fileInDirLimit;
         this.filePath = filePath;
+        this.sizeSuffix = sizeSuffix;
     }
 
     @Override
@@ -39,8 +44,13 @@ public class DiskUsageOptions implements FileTreeOptions, FilesPrintOptions {
     }
 
     @Override
-    public int fileInDirLimit() {
+    public int getFileInDirLimit() {
         return fileInDirLimit;
+    }
+
+    @Override
+    public SizeSuffix getByteSizeSuffix() {
+        return sizeSuffix;
     }
 
     public static DiskUsageOptionsBuilder builder() {
@@ -52,6 +62,8 @@ public class DiskUsageOptions implements FileTreeOptions, FilesPrintOptions {
         private int maxDepth = 10;
         private int fileInDirLimit = Integer.MAX_VALUE;
         private Path filePath = Path.of(".");
+
+        private SizeSuffix sizeSuffix = SizeSuffixIEC.BYTE;
 
         private DiskUsageOptionsBuilder() {}
 
@@ -84,8 +96,16 @@ public class DiskUsageOptions implements FileTreeOptions, FilesPrintOptions {
             return this;
         }
 
+        public DiskUsageOptionsBuilder withSizeSuffix(SizeSuffix sizeSuffix) {
+            if (sizeSuffix == null) {
+                throw new IllegalArgumentException("File path can't be null");
+            }
+            this.sizeSuffix = sizeSuffix;
+            return this;
+        }
+
         public DiskUsageOptions build() {
-            return new DiskUsageOptions(followLinks, maxDepth, fileInDirLimit, filePath);
+            return new DiskUsageOptions(followLinks, maxDepth, fileInDirLimit, filePath, sizeSuffix);
         }
     }
 }

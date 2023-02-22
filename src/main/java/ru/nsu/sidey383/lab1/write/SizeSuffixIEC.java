@@ -1,24 +1,32 @@
-package ru.nsu.sidey383.lab1.utils;
+package ru.nsu.sidey383.lab1.write;
 
-public enum SizeSuffix {
-    GIGABYTE("Gb", null, null), MEGABYTE("Mb",GIGABYTE, 1024), KILOBYTE("Kb", MEGABYTE, 1024), BYTE("Byte", KILOBYTE, 1024);
+import org.jetbrains.annotations.NotNull;
+
+public enum SizeSuffixIEC implements SizeSuffix {
+    GIGABYTE("GiB", null, null), MEGABYTE("MiB",GIGABYTE, 1024), KILOBYTE("KiB", MEGABYTE, 1024), BYTE("Byte", KILOBYTE, 1024);
 
     private final String suffix;
 
-    private final SizeSuffix nextSuffix;
+    private final SizeSuffixIEC nextSuffix;
 
     private final Integer nextSize;
 
-    SizeSuffix(String suffix, SizeSuffix nextSuffix, Integer nextSize) {
+    SizeSuffixIEC(String suffix, SizeSuffixIEC nextSuffix, Integer nextSize) {
         this.suffix = suffix;
         this.nextSuffix = nextSuffix;
         this.nextSize = nextSize;
     }
 
+    @NotNull
     public String getSuffix(long size) {
         if (size < nextSize)
             return String.format("%d %s", size, suffix);
         return getSuffix(size, 0);
+    }
+
+    @NotNull
+    public SizeSuffix getBaseSuffix() {
+        return BYTE;
     }
 
     private String getSuffix(long size, double prevPart) {

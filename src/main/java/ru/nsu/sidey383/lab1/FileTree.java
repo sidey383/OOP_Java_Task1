@@ -90,16 +90,16 @@ public class FileTree {
                         passedLinks.add(directory);
                     }
                 } else {
-                    addChildToParent(directory);
                     return NextAction.STOP;
                 }
             }
-            addChildToParent(directory);
             return NextAction.CONTINUE;
         }
 
         @Override
-        public void postVisitDirectory(DirectoryFile directory) {}
+        public void postVisitDirectory(DirectoryFile directory) {
+            addChildToParent(directory);
+        }
 
         @Override
         public NextAction pathVisitError(@Nullable Path path, @NotNull IOException e) {

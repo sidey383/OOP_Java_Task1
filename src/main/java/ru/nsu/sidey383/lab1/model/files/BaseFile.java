@@ -36,7 +36,7 @@ public abstract class BaseFile implements File {
     public String toString() {
         return "BaseFile{" +
                 "fileLore=" + fileLore +
-                ", parent=" + parent +
+                ", parent=" + (parent == null ? null : parent.getOriginalPath()) +
                 '}';
     }
 

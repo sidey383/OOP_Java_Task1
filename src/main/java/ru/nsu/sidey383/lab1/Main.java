@@ -1,7 +1,10 @@
 package ru.nsu.sidey383.lab1;
 
 import ru.nsu.sidey383.lab1.options.DiskUsageOptions;
-import ru.nsu.sidey383.lab1.utils.FileTreeStringFactory;
+import ru.nsu.sidey383.lab1.write.FileTreeStringFactory;
+import ru.nsu.sidey383.lab1.write.SizeSuffix;
+import ru.nsu.sidey383.lab1.write.SizeSuffixIEC;
+import ru.nsu.sidey383.lab1.write.SizeSuffixISU;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -49,9 +52,19 @@ public class Main {
                         return null;
                     }
                 }
-                case "-L" -> {
-                    builder.withFollowLinks(true);
-                    return null;
+                case "-L" -> builder.withFollowLinks(true);
+                case "--size-format" -> {
+                    if (++i < args.length) {
+                        switch (args[i]) {
+                            case "IEC" -> builder.withSizeSuffix(SizeSuffixIEC.BYTE);
+                            case "ISU" -> builder.withSizeSuffix(SizeSuffixISU.BYTE);
+                            default -> {
+                                return null;
+                            }
+                        }
+                    } else {
+                        return null;
+                    }
                 }
                 case "--limit" -> {
                     if (++i < args.length) {

@@ -18,7 +18,7 @@ public class DefaultDirectoryFile extends BaseFile implements DirectoryFile {
 
     @Override
     public List<File> getChildren() {
-        return List.copyOf(children);
+        return new ArrayList<>(children);
     }
 
 
