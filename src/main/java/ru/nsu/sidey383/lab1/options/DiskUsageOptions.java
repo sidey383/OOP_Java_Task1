@@ -1,12 +1,12 @@
 package ru.nsu.sidey383.lab1.options;
 
-import ru.nsu.sidey383.lab1.walker.SystemFileWalkerOptions;
+import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
 
 public class DiskUsageOptions implements FileTreeOptions, FilesPrintOptions {
 
-    private final SystemFileWalkerOptions[] options;
+    private final boolean followLinks;
 
     private final int maxDepth;
 
@@ -14,26 +14,32 @@ public class DiskUsageOptions implements FileTreeOptions, FilesPrintOptions {
 
     private final Path filePath;
 
-    private DiskUsageOptions(Path filePath, SystemFileWalkerOptions[] options, int maxDepth, int fileInDirLimit) {
-        this.options = options;
+
+    private DiskUsageOptions(boolean followLinks, int maxDepth, int fileInDirLimit, @NotNull Path filePath) {
+        this.followLinks = followLinks;
         this.maxDepth = maxDepth;
         this.fileInDirLimit = fileInDirLimit;
         this.filePath = filePath;
     }
 
-    public SystemFileWalkerOptions[] getWalkerOptions() {
-        return options;
+    @Override
+    public boolean followLink() {
+        return followLinks;
     }
 
+    @NotNull
+    @Override
     public Path getFilePath() {
         return filePath;
     }
 
+    @Override
     public int getMaxDepth() {
         return maxDepth;
     }
 
-    public int getFileInDirLimit() {
+    @Override
+    public int fileInDirLimit() {
         return fileInDirLimit;
     }
 
@@ -41,59 +47,45 @@ public class DiskUsageOptions implements FileTreeOptions, FilesPrintOptions {
         return new DiskUsageOptionsBuilder();
     }
 
-    public static class DiskUsageOptionsBuilder {
-
-        private boolean useSymLink = false;
-
-        private int maxDepth = 30;
-
-        private int fileInDirLimit = Integer.MIN_VALUE;
-
-        private Path path = Path.of(".");
+    public static final class DiskUsageOptionsBuilder {
+        private boolean followLinks = false;
+        private int maxDepth = 10;
+        private int fileInDirLimit = Integer.MAX_VALUE;
+        private Path filePath = Path.of(".");
 
         private DiskUsageOptionsBuilder() {}
 
-        public DiskUsageOptionsBuilder setMaxDepth(int maxDepth) {
-            if (maxDepth <= 0)
-                throw new IllegalArgumentException("Max depth must be over zero");
+        public DiskUsageOptionsBuilder withFollowLinks(boolean followLinks) {
+            this.followLinks = followLinks;
+            return this;
+        }
+
+        public DiskUsageOptionsBuilder withMaxDepth(int maxDepth) {
+            if (maxDepth <= 0) {
+                throw new IllegalArgumentException("Max depth must de over zero");
+            }
             this.maxDepth = maxDepth;
             return this;
         }
 
-        public DiskUsageOptionsBuilder setFileInDirLimit(int fileInDirLimit) {
-            if (fileInDirLimit <= 0)
-                throw new IllegalArgumentException("Limit of count files in directory must be over zero");
+        public DiskUsageOptionsBuilder withFileInDirLimit(int fileInDirLimit) {
+            if (fileInDirLimit <= 0) {
+                throw new IllegalArgumentException("Limit files in dir must de over zero");
+            }
             this.fileInDirLimit = fileInDirLimit;
             return this;
         }
 
-        public DiskUsageOptionsBuilder useSymLink(boolean useSymLink) {
-            this.useSymLink = useSymLink;
-            return this;
-        }
-
-        public DiskUsageOptionsBuilder setBasePath(Path path) {
-            if (path == null)
-                throw new IllegalArgumentException("Base path can't be null");
-            this.path = path;
+        public DiskUsageOptionsBuilder withFilePath(Path filePath) {
+            if (filePath == null) {
+                throw new IllegalArgumentException("File path can't be null");
+            }
+            this.filePath = filePath;
             return this;
         }
 
         public DiskUsageOptions build() {
-            final SystemFileWalkerOptions[] options;
-            if (useSymLink) {
-                options = new SystemFileWalkerOptions[]{
-                        SystemFileWalkerOptions.TO_REAL_PATH};
-            } else {
-                options = new SystemFileWalkerOptions[]{
-                        SystemFileWalkerOptions.TO_REAL_PATH,
-                        SystemFileWalkerOptions.NO_FOLLOW_LINKS_IN_REAL_PATH,
-                        SystemFileWalkerOptions.NO_FOLLOW_LINKS};
-            }
-            return new DiskUsageOptions(path, options, maxDepth, fileInDirLimit);
+            return new DiskUsageOptions(followLinks, maxDepth, fileInDirLimit, filePath);
         }
-
     }
-
-
 }

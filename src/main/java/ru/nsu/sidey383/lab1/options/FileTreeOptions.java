@@ -1,9 +1,14 @@
 package ru.nsu.sidey383.lab1.options;
 
-import ru.nsu.sidey383.lab1.walker.SystemFileWalkerOptions;
+import org.jetbrains.annotations.NotNull;
+
+import java.nio.file.Path;
 
 public interface FileTreeOptions {
 
-    SystemFileWalkerOptions[] getWalkerOptions();
+    boolean followLink();
+
+    @NotNull
+    Path getFilePath();
 
 }

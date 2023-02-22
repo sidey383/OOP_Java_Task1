@@ -42,7 +42,7 @@ public class FileTree {
 
         private final HashSet<File> passedLinks = new HashSet<>();
 
-        private void addParent(File f) {
+        private void addChildToParent(File f) {
             DirectoryFile parent = f.getParent();
             if (parent != null)
                 parent.addChild(f);
@@ -50,20 +50,28 @@ public class FileTree {
 
         @Override
         public void visitFile(File file) {
-            addParent(file);
+            addChildToParent(file);
         }
 
         @Override
         public NextAction preVisitDirectory(DirectoryFile directory) {
             if (directory.getFileType().isLink()) {
                 if (passedLinks.contains(directory)) {
-                    addParent(directory);
+                    for (File f : passedLinks) {
+                        if (directory.equals(f)) {
+                            DirectoryFile parent = directory.getParent();
+                            if (parent != null)
+                                parent.addChild(f);
+                            return NextAction.STOP;
+                        }
+                    }
+                    //addParent(directory);
                     return NextAction.STOP;
                 } else {
                     passedLinks.add(directory);
                 }
             }
-            addParent(directory);
+            addChildToParent(directory);
             return NextAction.CONTINUE;
         }
 

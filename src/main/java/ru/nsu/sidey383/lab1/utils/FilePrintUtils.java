@@ -17,7 +17,7 @@ public final class FilePrintUtils {
         File now = root;
         do {
             System.out.println("  ".repeat(dirStack.size()) + prettyFileString(now));
-            if (now instanceof DirectoryFile dir) {
+            if (now instanceof DirectoryFile dir && dirStack.size() < options.getMaxDepth()) {
                 dirStack.add(dir.getChildren().listIterator());
             }
             now = null;
