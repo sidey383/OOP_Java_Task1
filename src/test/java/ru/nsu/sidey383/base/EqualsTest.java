@@ -75,13 +75,13 @@ public class EqualsTest {
     void FileEqualsTest() throws IOException {
         List<File> files = new ArrayList<>(simpleFiles.stream().map(p -> {
             try {
-                return File.createFile(p);
+                return File.readFile(p);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }).toList());
-        files.add(File.createFile(testDir));
-        files.add(File.createFile(testDir));
+        files.add(File.readFile(testDir));
+        files.add(File.readFile(testDir));
         for (int i = 0; i < files.size(); i++) {
             for (int j = 0; j < files.size(); j++) {
                 if (i == j) {
@@ -101,14 +101,14 @@ public class EqualsTest {
     void twoDotEqualsTest() {
         List<File> files1 = new ArrayList<>(firstEqualsList.stream().map(p -> {
             try {
-                return File.createFile(p);
+                return File.readFile(p);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }).toList());
         List<File> files2 = new ArrayList<>(secondEqualsList.stream().map(p -> {
             try {
-                return File.createFile(p);
+                return File.readFile(p);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

@@ -36,7 +36,7 @@ public interface File {
         return getFileLore().getResolvedAttributes().size();
     }
 
-    static File createFile(Path path) throws IOException {
+    static File readFile(Path path) throws IOException {
         FileLore lore = FileLore.createFileLore(path);
         return switch (lore.getFileType()) {
             case DIRECTORY -> new DefaultDirectoryFile(lore);

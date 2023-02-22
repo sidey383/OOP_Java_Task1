@@ -1,7 +1,7 @@
 package ru.nsu.sidey383.lab1;
 
 import ru.nsu.sidey383.lab1.options.DiskUsageOptions;
-import ru.nsu.sidey383.lab1.utils.FilePrintUtils;
+import ru.nsu.sidey383.lab1.utils.FileTreeStringFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -11,7 +11,7 @@ public class Main {
 
     private Main() {}
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         if (args.length < 1) {
             System.out.println(usage());
             return;
@@ -21,9 +21,18 @@ public class Main {
             System.out.println(usage());
             return;
         }
-        FileTree fileTree = new FileTree(options.getFilePath());
-        fileTree.calculateTree();
-        FilePrintUtils.printFiles(fileTree.getBaseFile(), options);
+        FileTree fileTree = new FileTree(options);
+        try {
+            fileTree.calculateTree();
+        } catch (IOException e) {
+            System.err.println("File tree build error");
+            return;
+        }
+        if (fileTree.hasErrors())
+            for (TreeBuildError error : fileTree.getErrors())
+                System.err.println(error);
+        FileTreeStringFactory printer = new FileTreeStringFactory(options);
+        System.out.println(printer.createString(fileTree.getBaseFile()));
     }
 
     private static DiskUsageOptions readOptions(String[] args) {

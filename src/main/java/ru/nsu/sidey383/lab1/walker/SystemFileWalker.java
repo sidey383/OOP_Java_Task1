@@ -78,7 +78,7 @@ public class SystemFileWalker {
 
     private void visitFile(Path path, ArrayDeque<DirectoryNode> queue, DirectoryFile parent) {
         try {
-            File file = File.createFile(path);
+            File file = File.readFile(path);
             file.setParent(parent);
             if (file instanceof DirectoryFile directoryFile) {
                 if (visitor.preVisitDirectory(directoryFile) == NextAction.CONTINUE) {
@@ -125,7 +125,7 @@ public class SystemFileWalker {
     }
 
     public static SystemFileWalker walkFiles(Path path, FileVisitor visitor) throws IOException {
-        File rootFile = File.createFile(path);
+        File rootFile = File.readFile(path);
         SystemFileWalker walker = new SystemFileWalker(rootFile, visitor);
         walker.walk();
         return walker;
