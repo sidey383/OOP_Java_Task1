@@ -1,21 +1,26 @@
 package ru.nsu.sidey383.base;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import ru.nsu.sidey383.lab1.model.files.File;
+import ru.nsu.sidey383.utils.FileSystemExtension;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class EqualsTest {
+
+    @RegisterExtension
+    final FileSystemExtension extension = new FileSystemExtension();
+
+    private FileSystem fileSystem;
 
     private static Path testDir;
     private static Path attachedDir;
@@ -26,8 +31,9 @@ public class EqualsTest {
 
     private static List<Path> secondEqualsList = new ArrayList<>();
 
-    @BeforeAll
-    public static void createFiles() throws IOException {
+
+    @BeforeEach
+    public void createFiles() throws IOException {
         createDirs();
         for (int i = 0; i < 5; i++) {
             Path path = attachedDir.resolve( "file"+i);
@@ -51,8 +57,9 @@ public class EqualsTest {
         }
     }
 
-    private static void createDirs() throws IOException {
-        testDir = Path.of("." + EqualsTest.class);
+    private void createDirs() throws IOException {
+        this.fileSystem = extension.getFileSystem();
+        testDir = fileSystem.getPath("root/testDir");
         Files.createDirectories(testDir);
 
         attachedDir = testDir.resolve("attached");
@@ -60,7 +67,7 @@ public class EqualsTest {
     }
 
     @AfterAll
-    public static void removeFiles() throws IOException {
+    public void deleteFiles() throws IOException {
         for (Path file : simpleFiles) {
             Files.delete(file);
         }
@@ -98,7 +105,7 @@ public class EqualsTest {
     }
 
     @Test
-    void twoDotEqualsTest() {
+    void twoDotEqualsTest() throws IOException {
         List<File> files1 = new ArrayList<>(firstEqualsList.stream().map(p -> {
             try {
                 return File.readFile(p);
