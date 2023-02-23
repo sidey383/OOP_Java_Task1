@@ -3,6 +3,7 @@ package ru.nsu.sidey383.lab1.model;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
+import java.nio.file.NotDirectoryException;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Objects;
@@ -47,12 +48,13 @@ public class FileLore {
         return fileType;
     }
 
-    public boolean isLink() {
-        return fileType.isLink();
-    }
-
     public static FileLore createFileLore(Path path) throws IOException {
-        final Path originalPath = path.toRealPath(LinkOption.NOFOLLOW_LINKS);
+        Path originalPath;
+        try {
+            originalPath = path.toRealPath(LinkOption.NOFOLLOW_LINKS);
+        } catch (NotDirectoryException e) {
+            originalPath = path.toRealPath();
+        }
         final BasicFileAttributes originalAttributes = Files.readAttributes(originalPath, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
         if (originalAttributes == null)
             throw new AttributesResolveException("Can't read attributes by path "+ path);
