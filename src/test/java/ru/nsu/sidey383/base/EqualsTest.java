@@ -36,7 +36,7 @@ public class EqualsTest {
         fileSystem = MemoryFileSystemBuilder.newEmpty().build("name");
         createDirs();
         linkTestDir = testDir.resolve("link");
-        Files.createSymbolicLink(linkTestDir, fileSystem.getPath("attached"));
+        Files.createSymbolicLink(linkTestDir, attachedDir);
         simpleFiles.add(linkTestDir);
         for (int i = 0; i < 5; i++) {
             Path path = attachedDir.resolve( "file"+i);
@@ -65,7 +65,7 @@ public class EqualsTest {
     }
 
     private static void createDirs() throws IOException {
-        testDir = fileSystem.getPath("root");
+        testDir = fileSystem.getPath("/");
         Files.createDirectories(testDir);
 
         attachedDir = testDir.resolve("attached");
