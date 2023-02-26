@@ -15,7 +15,7 @@ public record DefaultFileLore(FileType fileType, Path originalPath, long origina
 
     @Override
     public String toString() {
-        return "FileLore{" +
+        return "DefaultFileLore{" +
                 "fileType=" + fileType +
                 ", originalSize=" + originalSize +
                 ", originalPath=" + originalPath +

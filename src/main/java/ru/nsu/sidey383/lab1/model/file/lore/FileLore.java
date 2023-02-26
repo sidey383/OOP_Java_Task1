@@ -46,6 +46,8 @@ public interface FileLore {
             originalSize = Files.size(originalPath);
             originalType = FileType.UNDEFINED;
         }
+        if (originalSize < 0)
+            originalSize = 0;
 
         if (originalType.isLink()) {
             Path resolvedPath;
@@ -66,6 +68,9 @@ public interface FileLore {
                 resolvedSize = Files.size(originalPath);
                 resolvedType = FileType.UNDEFINED;
             }
+
+            if (resolvedSize < 0)
+                resolvedSize = 0;
 
             return new DefaultFileLore(resolvedType == FileType.UNDEFINED ? FileType.UNDEFINED_LINK : resolvedType.toLink(), originalPath, originalSize, resolvedPath, resolvedSize);
         } else {

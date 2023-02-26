@@ -1,10 +1,7 @@
-package ru.nsu.sidey383.base;
+package ru.nsu.sidey383.lab1.write.size;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import ru.nsu.sidey383.lab1.write.size.SizeSuffix;
-import ru.nsu.sidey383.lab1.write.size.SizeSuffixIEC;
-import ru.nsu.sidey383.lab1.write.size.SizeSuffixISU;
 
 import java.util.List;
 
@@ -13,7 +10,7 @@ public class SizeSuffixTest {
     private record SuffixTestData(SizeSuffix suffix, Long val, String result) {
 
         public void test() {
-            Assertions.assertEquals(suffix.getSuffix(val), result);
+            Assertions.assertEquals(result, suffix.getSuffix(val));
         }
 
     }

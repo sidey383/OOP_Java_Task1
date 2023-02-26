@@ -7,7 +7,7 @@ import java.text.DecimalFormat;
 public enum SizeSuffixIEC implements SizeSuffix {
     GIGABYTE("GiB", null, null, false), MEGABYTE("MiB",GIGABYTE, 1024, false), KILOBYTE("KiB", MEGABYTE, 1024, false), BYTE("Byte", KILOBYTE, 1024, true);
 
-    private static final DecimalFormat decimalFormat = new DecimalFormat("#,##0.00");
+    private static final DecimalFormat decimalFormat = new DecimalFormat("0.00");
 
     private final String suffix;
 
