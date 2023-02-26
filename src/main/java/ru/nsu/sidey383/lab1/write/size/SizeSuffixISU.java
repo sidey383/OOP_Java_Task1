@@ -2,9 +2,13 @@ package ru.nsu.sidey383.lab1.write.size;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.text.DecimalFormat;
+
 public enum SizeSuffixISU implements SizeSuffix {
 
     GIGABYTE("GB", null, null, false), MEGABYTE("MB", GIGABYTE, 1000, false), KILOBYTE("KB", MEGABYTE, 1000, false), BYTE("Byte", KILOBYTE, 1000, true);
+
+    private static final DecimalFormat decimalFormat = new DecimalFormat("#,##0.00");
 
     private final String suffix;
 
@@ -38,9 +42,9 @@ public enum SizeSuffixISU implements SizeSuffix {
             );
         if (nextSize == null || nextSuffix == null || size < nextSize) {
             if (isAtomic) {
-                return String.format("%d %s", size, suffix);
+                return size + " " + suffix;
             } else {
-                return String.format("%.2f %s", size + prevPart, suffix);
+                return decimalFormat.format(size + prevPart) + " " + suffix;
             }
         }
         return nextSuffix.getSuffix(size / nextSize, ((double) (size % nextSize)) / nextSize);

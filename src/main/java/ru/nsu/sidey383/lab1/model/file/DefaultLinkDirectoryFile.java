@@ -1,6 +1,6 @@
-package ru.nsu.sidey383.lab1.model.files;
+package ru.nsu.sidey383.lab1.model.file;
 
-import ru.nsu.sidey383.lab1.model.FileLore;
+import ru.nsu.sidey383.lab1.model.file.lore.FileLore;
 
 public class DefaultLinkDirectoryFile extends DefaultDirectoryFile {
 

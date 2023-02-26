@@ -1,13 +1,13 @@
-package ru.nsu.sidey383.lab1.model.files;
+package ru.nsu.sidey383.lab1.model.file;
 
-import ru.nsu.sidey383.lab1.model.FileLore;
+import ru.nsu.sidey383.lab1.model.file.lore.FileLore;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class DefaultDirectoryFile extends BaseFile implements DirectoryFile {
 
-    protected List<File> children = new ArrayList<>();
+    protected Set<File> children = new HashSet<>();
 
     protected long size;
 
@@ -17,8 +17,8 @@ public class DefaultDirectoryFile extends BaseFile implements DirectoryFile {
     }
 
     @Override
-    public List<File> getChildren() {
-        return new ArrayList<>(children);
+    public Set<File> getChildren() {
+        return Set.copyOf(children);
     }
 
 

@@ -2,8 +2,12 @@ package ru.nsu.sidey383.lab1.write.size;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.text.DecimalFormat;
+
 public enum SizeSuffixIEC implements SizeSuffix {
     GIGABYTE("GiB", null, null, false), MEGABYTE("MiB",GIGABYTE, 1024, false), KILOBYTE("KiB", MEGABYTE, 1024, false), BYTE("Byte", KILOBYTE, 1024, true);
+
+    private static final DecimalFormat decimalFormat = new DecimalFormat("#,##0.00");
 
     private final String suffix;
 
@@ -37,9 +41,9 @@ public enum SizeSuffixIEC implements SizeSuffix {
             );
         if (nextSize == null || nextSuffix == null || size < nextSize) {
             if (isAtomic) {
-                return String.format("%d %s", size, suffix);
+                return size + " " + suffix;
             } else {
-                return String.format("%.2f %s", size + prevPart, suffix);
+                return decimalFormat.format(size + prevPart) + " " + suffix;
             }
         }
         return nextSuffix.getSuffix(size / nextSize, ((double)(size % nextSize)) / nextSize);

@@ -1,4 +1,4 @@
-package ru.nsu.sidey383.lab1.model;
+package ru.nsu.sidey383.lab1.model.file;
 
 import java.nio.file.attribute.BasicFileAttributes;
 

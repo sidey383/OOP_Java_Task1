@@ -2,7 +2,7 @@ package ru.nsu.sidey383.base;
 
 import com.github.marschall.memoryfilesystem.MemoryFileSystemBuilder;
 import org.junit.jupiter.api.*;
-import ru.nsu.sidey383.lab1.model.files.File;
+import ru.nsu.sidey383.lab1.model.file.File;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;

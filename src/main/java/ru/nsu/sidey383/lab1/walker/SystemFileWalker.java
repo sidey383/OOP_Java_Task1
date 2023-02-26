@@ -1,12 +1,12 @@
 package ru.nsu.sidey383.lab1.walker;
 
-import ru.nsu.sidey383.lab1.model.files.DirectoryFile;
-import ru.nsu.sidey383.lab1.model.files.File;
+import org.jetbrains.annotations.NotNull;
+import ru.nsu.sidey383.lab1.model.file.DirectoryFile;
+import ru.nsu.sidey383.lab1.model.file.File;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -30,16 +30,18 @@ public class SystemFileWalker {
 
         private final DirectoryStream<Path> stream;
 
-        public DirectoryNode(DirectoryFile file) throws IOException {
+        public DirectoryNode(@NotNull DirectoryFile file) throws IOException {
             this.file = file;
             this.stream = Files.newDirectoryStream(this.file.getResolvedPath());
             this.iterator = this.stream.iterator();
         }
 
+        @NotNull
         public DirectoryFile getDir() {
             return file;
         }
 
+        @NotNull
         public Iterator<Path> getIterator() {
             return iterator;
         }
@@ -54,9 +56,8 @@ public class SystemFileWalker {
         if (rootFile instanceof DirectoryFile rootDir) {
             ArrayDeque<DirectoryNode> queue = new ArrayDeque<>();
             try {
-                if(!initQueue(queue, rootDir))
-                    return;
-                do {
+                initQueue(queue, rootDir);
+                while (!queue.isEmpty()) {
                     DirectoryNode node = queue.peek();
                     Iterator<Path> iterator = node.getIterator();
                     if (iterator.hasNext()) {
@@ -66,7 +67,7 @@ public class SystemFileWalker {
                         suppressedNodeClose(node);
                         visitor.postVisitDirectory(node.getDir());
                     }
-                } while (!queue.isEmpty());
+                }
             } finally {
                 while (!queue.isEmpty())
                     suppressedNodeClose(queue.pop());
@@ -92,13 +93,12 @@ public class SystemFileWalker {
         }
     }
 
-    private boolean initQueue(ArrayDeque<DirectoryNode> queue, DirectoryFile rootDir) {
+    private void initQueue(ArrayDeque<DirectoryNode> queue, DirectoryFile rootDir) {
         try {
             queue.add(new DirectoryNode(rootDir));
         } catch (IOException e) {
             visitor.pathVisitError(rootDir.getOriginalPath(), e);
         }
-        return !queue.isEmpty();
     }
 
     private void suppressedNodeClose(DirectoryNode node) {
@@ -113,13 +113,6 @@ public class SystemFileWalker {
         return rootFile;
     }
 
-    /**
-     * Collects all {@link DirectoryStream} closure exceptions. <br>
-     * All file opening exceptions are returned via {@link FileVisitor#pathVisitError(Path, IOException)} <br>
-     * All errors produced by {@link Path#toRealPath(LinkOption...)} are returned vai {@link FileVisitor#realPathError(Path, IOException)}
-     *
-     * @return list of suppressed IOExceptions
-     **/
     public List<IOException> getSuppressedExceptions() {
         return new ArrayList<>(exceptionList);
     }

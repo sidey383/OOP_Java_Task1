@@ -2,7 +2,7 @@ package ru.nsu.sidey383.lab1;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ru.nsu.sidey383.lab1.model.files.File;
+import ru.nsu.sidey383.lab1.model.file.File;
 
 import java.io.IOException;
 import java.io.PrintWriter;

@@ -1,14 +1,13 @@
 package ru.nsu.sidey383.lab1.write;
 
-import ru.nsu.sidey383.lab1.model.FileType;
-import ru.nsu.sidey383.lab1.model.files.DirectoryFile;
-import ru.nsu.sidey383.lab1.model.files.File;
+import ru.nsu.sidey383.lab1.model.file.FileType;
+import ru.nsu.sidey383.lab1.model.file.DirectoryFile;
+import ru.nsu.sidey383.lab1.model.file.File;
 import ru.nsu.sidey383.lab1.options.FilesPrintOptions;
 import ru.nsu.sidey383.lab1.write.size.SizeSuffix;
 
 import java.nio.file.Path;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Stack;
 
 public class FileTreeStringFactory {
@@ -32,14 +31,12 @@ public class FileTreeStringFactory {
         do {
             builder.append("  ".repeat(dirStack.size())).append(prettyFileString(now));
             if (now instanceof DirectoryFile dir && dirStack.size() < maxDepth) {
-                List<File> list = dir.getChildren();
-                if (list.size() > fileInDirLimit) {
-                    list.sort(
-                            (f1, f2) -> (int) Math.signum(f2.getSize() - f1.getSize())
-                    );
-                    list = list.subList(0, fileInDirLimit);
-                }
-                dirStack.add(list.listIterator());
+                dirStack.add(
+                        dir.getChildren().stream()
+                                .sorted((f1, f2) -> (int) Math.signum(f2.getSize() - f1.getSize()))
+                                .limit(fileInDirLimit)
+                                .iterator()
+                        );
             }
             now = null;
             while (!dirStack.isEmpty()) {
@@ -70,8 +67,11 @@ public class FileTreeStringFactory {
         } else {
             builder.append(fileName).append(" ");
         }
+
         if (type.isLink()) {
             builder.append("[link ").append(file.getResolvedPath()).append("]");
+        } else if (type == FileType.OTHER) {
+            builder.append("[unknown type]");
         } else {
             builder.append("[").append(sizeSuffix.getSuffix(file.getSize())).append("]");
         }

@@ -1,10 +1,9 @@
 package ru.nsu.sidey383.lab1;
 
-import com.sun.source.tree.Tree;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ru.nsu.sidey383.lab1.model.files.DirectoryFile;
-import ru.nsu.sidey383.lab1.model.files.File;
+import ru.nsu.sidey383.lab1.model.file.DirectoryFile;
+import ru.nsu.sidey383.lab1.model.file.File;
 import ru.nsu.sidey383.lab1.options.FileTreeOptions;
 import ru.nsu.sidey383.lab1.walker.FileVisitor;
 import ru.nsu.sidey383.lab1.walker.NextAction;
@@ -13,7 +12,6 @@ import ru.nsu.sidey383.lab1.walker.SystemFileWalker;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
@@ -107,11 +105,6 @@ public class FileTree {
             return NextAction.CONTINUE;
         }
 
-        @Override
-        public NextAction realPathError(@Nullable Path path, @NotNull IOException e) {
-            errors.add(new TreeBuildError(path, null, e));
-            return NextAction.TRY_OTHER;
-        }
     }
 
 }

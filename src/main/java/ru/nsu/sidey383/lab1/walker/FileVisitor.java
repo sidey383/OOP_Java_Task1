@@ -2,8 +2,8 @@ package ru.nsu.sidey383.lab1.walker;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ru.nsu.sidey383.lab1.model.files.DirectoryFile;
-import ru.nsu.sidey383.lab1.model.files.File;
+import ru.nsu.sidey383.lab1.model.file.DirectoryFile;
+import ru.nsu.sidey383.lab1.model.file.File;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -29,7 +29,5 @@ public interface FileVisitor {
      * Called when there is an error getting the file metadata
      * **/
     NextAction pathVisitError(@Nullable Path path, @NotNull IOException e);
-
-    NextAction realPathError(@Nullable Path path, @Nullable IOException e);
 
 }
