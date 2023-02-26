@@ -1,10 +1,10 @@
-package ru.nsu.sidey383.lab1.write;
+package ru.nsu.sidey383.lab1.write.size;
 
 import org.jetbrains.annotations.NotNull;
 
 public enum SizeSuffixISU implements SizeSuffix {
 
-    GIGABYTE("GB", null, null), MEGABYTE("MB", GIGABYTE, 1000), KILOBYTE("KB", MEGABYTE, 1000), BYTE("Byte", KILOBYTE, 1000);
+    GIGABYTE("GB", null, null, false), MEGABYTE("MB", GIGABYTE, 1000, false), KILOBYTE("KB", MEGABYTE, 1000, false), BYTE("Byte", KILOBYTE, 1000, true);
 
     private final String suffix;
 
@@ -12,16 +12,17 @@ public enum SizeSuffixISU implements SizeSuffix {
 
     private final Integer nextSize;
 
-    SizeSuffixISU(String suffix, SizeSuffixISU nextSuffix, Integer nextSize) {
+    private final boolean isAtomic;
+
+    SizeSuffixISU(String suffix, SizeSuffixISU nextSuffix, Integer nextSize, boolean isAtomic) {
         this.suffix = suffix;
         this.nextSuffix = nextSuffix;
         this.nextSize = nextSize;
+        this.isAtomic = isAtomic;
     }
 
     @NotNull
     public String getSuffix(long size) {
-        if (size < nextSize)
-            return String.format("%d %s", size, suffix);
         return getSuffix(size, 0);
     }
 
@@ -36,7 +37,11 @@ public enum SizeSuffixISU implements SizeSuffix {
                     String.format("%s size=%d previsionPart=%f", this, size, prevPart)
             );
         if (nextSize == null || nextSuffix == null || size < nextSize) {
-            return String.format("%.2f %s", size + prevPart, suffix);
+            if (isAtomic) {
+                return String.format("%d %s", size, suffix);
+            } else {
+                return String.format("%.2f %s", size + prevPart, suffix);
+            }
         }
         return nextSuffix.getSuffix(size / nextSize, ((double) (size % nextSize)) / nextSize);
     }

@@ -20,18 +20,16 @@ public class EqualsTest {
     private static Path testDir;
     private static Path attachedDir;
 
-    private static List<Path> simpleFiles = new ArrayList<>();
+    private static final List<Path> simpleFiles = new ArrayList<>();
 
-    private static List<List<Path>> equalsPathsLists = new ArrayList<>();
-
-    private static Path linkTestDir;
+    private static final List<List<Path>> equalsPathsLists = new ArrayList<>();
 
 
     @BeforeAll
     public static void createFiles() throws IOException {
         fileSystem = MemoryFileSystemBuilder.newEmpty().build("name");
         createDirs();
-        linkTestDir = testDir.resolve("link");
+        final Path linkTestDir = testDir.resolve("link");
         Files.createSymbolicLink(linkTestDir, attachedDir);
         simpleFiles.add(linkTestDir);
         equalsPathsLists.add(new ArrayList<>());
@@ -79,7 +77,8 @@ public class EqualsTest {
     }
 
     @Test
-    void simpleEqualsTest() throws IOException {
+    void simpleEqualsTest() {
+
         List<File> files = new ArrayList<>(simpleFiles.stream().map(p -> {
             try {
                 return File.readFile(p);
@@ -87,28 +86,22 @@ public class EqualsTest {
                 throw new RuntimeException(e);
             }
         }).toList());
-        files.add(File.readFile(testDir));
+
         for (int i = 0; i < files.size(); i++) {
             for (int j = 0; j < files.size(); j++) {
                 if (i == j) {
-                    File f1 = files.get(i);
-                    File f2 = files.get(j);
-                    Assertions.assertEquals(f1, f2);
-                    Assertions.assertEquals(f1.hashCode(), f2.hashCode());
-                    Assertions.assertEquals(f1.getFileLore(), f2.getFileLore());
-                    Assertions.assertEquals(f1.getFileLore().hashCode(), f2.getFileLore().hashCode());
+                    checkFileEquals(files.get(i), files.get(j));
                 } else {
-                    File f1 = files.get(i);
-                    File f2 = files.get(j);
-                    Assertions.assertNotEquals(f1, f2);
-                    Assertions.assertNotEquals(f2.getFileType(), f2.getFileLore());
+                    checkFileNotEquals(files.get(i), files.get(j));
                 }
             }
         }
+
     }
 
     @Test
-    void differentPathEqualsTest() throws IOException {
+    void differentPathEqualsTest() {
+
         List<List<File>> equalsFilesLists = equalsPathsLists.stream()
                 .map((list) ->
                         list.stream().map((path -> {
@@ -120,6 +113,7 @@ public class EqualsTest {
                         }
                         )).toList())
                 .toList();
+
         for (int i = 1; i < equalsFilesLists.size(); i++) {
             List<File> fileList1 = equalsFilesLists.get(i);
             for (int j = 0; j < i; j++) {
@@ -134,6 +128,7 @@ public class EqualsTest {
                 }
             }
         }
+
     }
 
     private void checkFileEquals(File f1, File f2) {

@@ -2,9 +2,8 @@ package ru.nsu.sidey383.lab1;
 
 import ru.nsu.sidey383.lab1.options.DiskUsageOptions;
 import ru.nsu.sidey383.lab1.write.FileTreeStringFactory;
-import ru.nsu.sidey383.lab1.write.SizeSuffix;
-import ru.nsu.sidey383.lab1.write.SizeSuffixIEC;
-import ru.nsu.sidey383.lab1.write.SizeSuffixISU;
+import ru.nsu.sidey383.lab1.write.size.SizeSuffixIEC;
+import ru.nsu.sidey383.lab1.write.size.SizeSuffixISU;
 
 import java.io.IOException;
 import java.nio.file.Files;

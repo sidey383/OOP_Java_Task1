@@ -1,6 +1,6 @@
 package ru.nsu.sidey383.lab1.options;
 
-import ru.nsu.sidey383.lab1.write.SizeSuffix;
+import ru.nsu.sidey383.lab1.write.size.SizeSuffix;
 
 public interface FilesPrintOptions {
 

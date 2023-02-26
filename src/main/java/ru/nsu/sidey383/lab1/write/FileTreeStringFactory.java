@@ -4,6 +4,7 @@ import ru.nsu.sidey383.lab1.model.FileType;
 import ru.nsu.sidey383.lab1.model.files.DirectoryFile;
 import ru.nsu.sidey383.lab1.model.files.File;
 import ru.nsu.sidey383.lab1.options.FilesPrintOptions;
+import ru.nsu.sidey383.lab1.write.size.SizeSuffix;
 
 import java.nio.file.Path;
 import java.util.Iterator;

@@ -1,8 +1,8 @@
 package ru.nsu.sidey383.lab1.options;
 
 import org.jetbrains.annotations.NotNull;
-import ru.nsu.sidey383.lab1.write.SizeSuffix;
-import ru.nsu.sidey383.lab1.write.SizeSuffixIEC;
+import ru.nsu.sidey383.lab1.write.size.SizeSuffix;
+import ru.nsu.sidey383.lab1.write.size.SizeSuffixIEC;
 
 import java.nio.file.Path;
 
