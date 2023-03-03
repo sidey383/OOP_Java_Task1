@@ -124,12 +124,12 @@ public class FileTree {
 
         /**
          * Collect all errors.
+         *
          * @see FileTree#getErrors()
-         * **/
+         **/
         @Override
-        public NextAction pathVisitError(@Nullable Path path, @NotNull IOException e) {
+        public void pathVisitError(@Nullable Path path, @NotNull IOException e) {
             errors.add(new TreeBuildError(path, null, e));
-            return NextAction.CONTINUE;
         }
 
     }

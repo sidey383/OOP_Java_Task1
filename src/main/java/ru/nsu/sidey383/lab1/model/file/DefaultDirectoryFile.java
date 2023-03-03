@@ -7,7 +7,7 @@ import java.util.Set;
 
 public class DefaultDirectoryFile extends BaseFile implements DirectoryFile {
 
-    protected Set<File> children = new HashSet<>();
+    protected final Set<File> children = new HashSet<>();
 
     protected long size;
 
