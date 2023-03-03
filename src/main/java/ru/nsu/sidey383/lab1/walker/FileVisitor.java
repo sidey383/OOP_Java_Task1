@@ -17,7 +17,8 @@ public interface FileVisitor {
 
     /**
      * Visit the directory before going through the list of its files
-     * @return action for this directory. When action is {@link NextAction#CONTINUE} will visit children, else ignore them.
+     * @return action for this directory. When action is {@link NextAction#CONTINUE} will visit children,
+     * else ignore them and don't call {@link FileVisitor#postVisitDirectory(DirectoryFile)} for this directory.
      * **/
     NextAction preVisitDirectory(DirectoryFile directory);
 

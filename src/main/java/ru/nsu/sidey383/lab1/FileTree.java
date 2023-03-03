@@ -34,13 +34,7 @@ public class FileTree {
         errors = new ArrayList<>();
         walker = null;
         walker = SystemFileWalker.walkFiles(basePath, new TreeVisitor());
-        List<IOException> exceptionList = walker.getSuppressedExceptions();
-        if (!exceptionList.isEmpty()) {
-            System.err.println("File walker errors:");
-            for (IOException exception : exceptionList) {
-                exception.printStackTrace();
-            }
-        }
+        errors.addAll(walker.getSuppressedExceptions().stream().map(e -> new TreeBuildError(null, null, e)).toList());
     }
 
     /**

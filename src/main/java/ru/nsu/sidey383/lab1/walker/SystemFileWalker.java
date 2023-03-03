@@ -55,6 +55,7 @@ public class SystemFileWalker {
         exceptionList = new ArrayList<>();
         if (rootFile instanceof DirectoryFile rootDir) {
             ArrayDeque<DirectoryNode> queue = new ArrayDeque<>();
+            visitor.preVisitDirectory(rootDir);
             try {
                 initQueue(queue, rootDir);
                 while (!queue.isEmpty()) {
