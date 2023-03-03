@@ -31,7 +31,7 @@ public enum SizeSuffixISU implements SizeSuffix {
     }
 
     @NotNull
-    public SizeSuffix getBaseSuffix() {
+    public SizeSuffix getByteSuffix() {
         return BYTE;
     }
 

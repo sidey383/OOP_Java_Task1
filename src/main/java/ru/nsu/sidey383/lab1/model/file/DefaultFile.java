@@ -2,9 +2,9 @@ package ru.nsu.sidey383.lab1.model.file;
 
 import ru.nsu.sidey383.lab1.model.file.lore.FileLore;
 
-public class DefaultRegularFile extends BaseFile {
+public class DefaultFile extends BaseFile {
 
-    public DefaultRegularFile(FileLore lore) {
+    public DefaultFile(FileLore lore) {
         super(lore);
     }
 

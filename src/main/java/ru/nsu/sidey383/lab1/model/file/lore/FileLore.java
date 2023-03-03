@@ -7,6 +7,10 @@ import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 
+
+/**
+ * Additional {@link ru.nsu.sidey383.lab1.model.file.File} data
+ * **/
 public interface FileLore {
 
 
@@ -23,6 +27,15 @@ public interface FileLore {
     @NotNull
     FileType fileType();
 
+    /**
+     * Factory method for creating {@link FileLore}.
+     * <p> Before creating {@link FileLore} resolve path to file by {@link Path#toRealPath(LinkOption...)}
+     * @throws SecurityException when don't have permission to resolve path or read file size
+     * @throws IOException if file doesn't exist or an I/O error occurs
+     * @see Path#toRealPath(LinkOption...)
+     * @see Files#readAttributes(Path, Class, LinkOption...)
+     * @see Files#size(Path)
+     * **/
     static FileLore createFileLore(@NotNull Path path) throws IOException {
         Path originalPath;
         FileType originalType;
@@ -30,19 +43,15 @@ public interface FileLore {
 
         try {
             originalPath = path.toRealPath(LinkOption.NOFOLLOW_LINKS);
-        } catch (NotDirectoryException | SecurityException e1) {
-            try {
-                originalPath = path.toRealPath();
-            } catch (SecurityException e2) {
-                originalPath = path;
-            }
+        } catch (NotDirectoryException e1) {
+            originalPath = path.toRealPath();
         }
 
         try {
             BasicFileAttributes originalAttributes = Files.readAttributes(originalPath, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
             originalSize = originalAttributes.size();
             originalType = FileType.toSimpleType(originalAttributes);
-        } catch (UnsupportedOperationException | FileSystemException | SecurityException e) {
+        } catch (UnsupportedOperationException | FileSystemException e) {
             originalSize = Files.size(originalPath);
             originalType = FileType.UNDEFINED;
         }
@@ -54,20 +63,11 @@ public interface FileLore {
             FileType resolvedType;
             long resolvedSize;
 
-            try {
-                resolvedPath = path.toRealPath();
-            } catch (SecurityException e2) {
-                resolvedPath = originalPath;
-            }
+            resolvedPath = path.toRealPath();
 
-            try {
-                BasicFileAttributes originalAttributes = Files.readAttributes(resolvedPath, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
-                resolvedSize = originalAttributes.size();
-                resolvedType = FileType.toSimpleType(originalAttributes);
-            } catch (UnsupportedOperationException | FileSystemException | SecurityException e) {
-                resolvedSize = Files.size(originalPath);
-                resolvedType = FileType.UNDEFINED;
-            }
+            BasicFileAttributes originalAttributes = Files.readAttributes(resolvedPath, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
+            resolvedSize = originalAttributes.size();
+            resolvedType = FileType.toSimpleType(originalAttributes);
 
             if (resolvedSize < 0)
                 resolvedSize = 0;
@@ -77,5 +77,17 @@ public interface FileLore {
             return new DefaultFileLore(originalType, originalPath, originalSize, originalPath, originalSize);
         }
     }
+
+    /**
+     * Must generate only by path of file
+     * **/
+    @Override
+    int hashCode();
+
+    /**
+     * Must compare only by path of file
+     * **/
+    @Override
+    boolean equals(Object obj);
 
 }

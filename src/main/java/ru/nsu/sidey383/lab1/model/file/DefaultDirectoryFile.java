@@ -30,14 +30,6 @@ public class DefaultDirectoryFile extends BaseFile implements DirectoryFile {
         this.children.add(file);
     }
 
-    public long recalculateSize() {
-        this.size = getResolvedSize();
-        for (File f : children) {
-            this.size += f.getSize();
-        }
-        return this.size;
-    }
-
     @Override
     public long getSize() {
         return this.size;

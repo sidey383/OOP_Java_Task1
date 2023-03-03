@@ -25,8 +25,14 @@ public enum FileType {
         return isLink;
     }
 
-    public boolean isDirectory() {return isDirectory;}
+    public boolean isDirectory() {
+        return isDirectory;
+    }
 
+    /**
+     * Return type of file by {@link BasicFileAttributes} data.
+     * <p> Does not check links, for all links return {@link FileType#UNDEFINED_LINK}
+     * **/
     public static FileType toSimpleType(BasicFileAttributes attributes) {
         if (attributes.isRegularFile()) {
             return REGULAR_FILE;
@@ -60,6 +66,7 @@ public enum FileType {
      * Convert link {@link FileType} in simple type <br>
      * Saves simple types <br>
      */
+    @SuppressWarnings("unused")
     public FileType toReal() {
         return switch (this) {
             case DIRECTORY_LINK -> DIRECTORY;

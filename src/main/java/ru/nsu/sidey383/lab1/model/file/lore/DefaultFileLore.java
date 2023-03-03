@@ -5,12 +5,15 @@ import ru.nsu.sidey383.lab1.model.file.FileType;
 import java.nio.file.Path;
 import java.util.Objects;
 
-public record DefaultFileLore(FileType fileType, Path originalPath, long originalSize, Path resolvedPath,
+public record DefaultFileLore(FileType fileType,
+                              Path originalPath,
+                              long originalSize,
+                              Path resolvedPath,
                               long resolvedSize) implements FileLore {
 
     @Override
     public boolean equals(Object obj) {
-        return (obj instanceof DefaultFileLore lore) && originalPath.equals(lore.originalPath) && resolvedPath.equals(lore.resolvedPath);
+        return (obj instanceof FileLore lore) && originalPath.equals(lore.originalPath()) && resolvedPath.equals(lore.resolvedPath());
     }
 
     @Override

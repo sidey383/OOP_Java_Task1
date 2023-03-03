@@ -6,6 +6,12 @@ import ru.nsu.sidey383.lab1.write.size.SizeSuffixIEC;
 
 import java.nio.file.Path;
 
+/**
+ * Disk usage configuration.
+ * <p> For creating configuration instance use {@link DiskUsageOptions#builder()}
+ * @see ru.nsu.sidey383.lab1.options.FileTreeOptions
+ * @see ru.nsu.sidey383.lab1.options.FilesPrintOptions
+ * **/
 public class DiskUsageOptions implements FileTreeOptions, FilesPrintOptions {
 
     private final boolean followLinks;
@@ -57,6 +63,7 @@ public class DiskUsageOptions implements FileTreeOptions, FilesPrintOptions {
         return new DiskUsageOptionsBuilder();
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public static final class DiskUsageOptionsBuilder {
         private boolean followLinks = false;
         private int maxDepth = 10;

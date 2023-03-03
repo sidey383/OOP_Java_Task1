@@ -30,7 +30,7 @@ public enum SizeSuffixIEC implements SizeSuffix {
     }
 
     @NotNull
-    public SizeSuffix getBaseSuffix() {
+    public SizeSuffix getByteSuffix() {
         return BYTE;
     }
 

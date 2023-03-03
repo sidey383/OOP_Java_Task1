@@ -37,7 +37,7 @@ public class Main {
         System.out.println(printer.createString(fileTree.getBaseFile()));
     }
 
-    private static DiskUsageOptions readOptions(String[] args) {
+    private  static DiskUsageOptions readOptions(String[] args) {
         final var builder = DiskUsageOptions.builder();
         for (int i = 0; i < args.length; i++) {
             switch (args[i]) {

@@ -21,9 +21,14 @@ public class FileTreeStringFactory {
     public FileTreeStringFactory(FilesPrintOptions options) {
         this.maxDepth = options.getMaxDepth();
         this.fileInDirLimit = options.getFileInDirLimit();
-        this.sizeSuffix = options.getByteSizeSuffix().getBaseSuffix();
+        this.sizeSuffix = options.getByteSizeSuffix().getByteSuffix();
     }
 
+    /**
+     * Read all files in file tree.
+     * Writes all files in directories in order of decreasing size.
+     * @return new {@link StringBuilder} containing a file tree string
+     * **/
     public StringBuilder createString(File root) {
         Stack<Iterator<File>> dirStack = new Stack<>();
         File now = root;
@@ -53,6 +58,9 @@ public class FileTreeStringFactory {
         return builder;
     }
 
+    /**
+     * @return Beautiful file representation
+     * **/
     public String prettyFileString(File file) {
         StringBuilder builder = new StringBuilder();
         FileType type = file.getFileType();
@@ -61,7 +69,8 @@ public class FileTreeStringFactory {
             builder.append("/");
         }
 
-        Path fileName = file.getOriginalPath().getFileName(); // getFileName() return null for root of file system
+        Path fileName = file.getOriginalPath().getFileName();
+        // getFileName() will return null for root of file system, check this
         if (fileName == null) {
             builder.append(file.getOriginalPath()).append(" ");
         } else {

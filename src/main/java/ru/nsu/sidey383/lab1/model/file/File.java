@@ -5,6 +5,9 @@ import ru.nsu.sidey383.lab1.model.file.lore.FileLore;
 import java.io.IOException;
 import java.nio.file.Path;
 
+/**
+ * Common file interface
+ * **/
 public interface File {
 
     FileLore getFileLore();
@@ -13,6 +16,7 @@ public interface File {
 
     DirectoryFile getParent();
 
+    @SuppressWarnings("UnusedReturnValue")
     DirectoryFile setParent(DirectoryFile file);
 
     default FileType getFileType() {
@@ -35,13 +39,18 @@ public interface File {
         return getFileLore().resolvedSize();
     }
 
+    /**
+     * Factory method for creating {@link File}
+     * @throws SecurityException when don't have permission to resolve path or read file size
+     * @throws IOException if file doesn't exist or an I/O error occurs
+     * @see FileLore#createFileLore(Path)
+     * **/
     static File readFile(Path path) throws IOException {
         FileLore lore = FileLore.createFileLore(path);
         return switch (lore.fileType()) {
             case DIRECTORY -> new DefaultDirectoryFile(lore);
             case DIRECTORY_LINK -> new DefaultLinkDirectoryFile(lore);
-            case REGULAR_FILE, REGULAR_FILE_LINK -> new DefaultRegularFile(lore);
-            case OTHER, OTHER_LINK, UNDEFINED, UNDEFINED_LINK -> new DefaultOtherFile(lore);
+            case REGULAR_FILE, REGULAR_FILE_LINK, OTHER, OTHER_LINK, UNDEFINED, UNDEFINED_LINK  -> new DefaultFile(lore);
         };
     }
 

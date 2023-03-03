@@ -32,6 +32,7 @@ public class FileTree {
 
     public void calculateTree() throws IOException {
         errors = new ArrayList<>();
+        walker = null;
         walker = SystemFileWalker.walkFiles(basePath, new TreeVisitor());
         List<IOException> exceptionList = walker.getSuppressedExceptions();
         if (!exceptionList.isEmpty()) {
@@ -42,15 +43,26 @@ public class FileTree {
         }
     }
 
+    /**
+     * Base file for this tree.
+     * File lying on the basePath
+     * @return not null after correct complete of {@link FileTree#calculateTree()}
+     * **/
     @Nullable
     public File getBaseFile() {
         return walker == null ? null : walker.getRootFile();
     }
 
+    /**
+     * @return all {@link IOException}, created in time of visit files.
+     * **/
     public List<TreeBuildError> getErrors() {
         return List.copyOf(errors);
     }
 
+    /**
+     * Check {@link FileTree#getErrors()} on empty list.
+     * **/
     public boolean hasErrors() {
         return !errors.isEmpty();
     }
@@ -65,11 +77,18 @@ public class FileTree {
                 parent.addChild(f);
         }
 
+        /**
+         * Synchronizes the parent-child relation
+         * **/
         @Override
         public void visitFile(File file) {
             addChildToParent(file);
         }
 
+        /**
+         * Check directories on cycle.
+         * @return {@link NextAction#STOP} is this is second pass of this link or in configurations set followLink on false.
+         * **/
         @Override
         public NextAction preVisitDirectory(DirectoryFile directory) {
             if (directory.getFileType().isLink()) {
@@ -80,7 +99,7 @@ public class FileTree {
                                 DirectoryFile parent = directory.getParent();
                                 if (parent != null)
                                     parent.addChild(f);
-                                return NextAction.STOP;
+                                break;
                             }
                         }
                         return NextAction.STOP;
@@ -95,11 +114,18 @@ public class FileTree {
             return NextAction.CONTINUE;
         }
 
+        /**
+         * Synchronizes the parent-child relation
+         * **/
         @Override
         public void postVisitDirectory(DirectoryFile directory) {
             addChildToParent(directory);
         }
 
+        /**
+         * Collect all errors.
+         * @see FileTree#getErrors()
+         * **/
         @Override
         public NextAction pathVisitError(@Nullable Path path, @NotNull IOException e) {
             errors.add(new TreeBuildError(path, null, e));
