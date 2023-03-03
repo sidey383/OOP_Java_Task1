@@ -88,6 +88,7 @@ public class FileTree {
                         passedLinks.add(directory);
                     }
                 } else {
+                    addChildToParent(directory);
                     return NextAction.STOP;
                 }
             }

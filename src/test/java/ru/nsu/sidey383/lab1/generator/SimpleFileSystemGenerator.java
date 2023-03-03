@@ -14,6 +14,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * generate file system
+ * /
+ *   /file0
+ *   /file1
+ *   /file2
+ *   /file3
+ *   /file4
+ *   /attached
+ *      /link [link to /]
+ *      /file0
+ *      /file1
+ *      /file2
+ *      /file3
+ *      /file4
+ * **/
 public class SimpleFileSystemGenerator implements BeforeAllCallback, AfterAllCallback {
 
     private FileSystem fileSystem;
