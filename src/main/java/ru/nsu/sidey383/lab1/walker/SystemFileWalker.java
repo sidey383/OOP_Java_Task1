@@ -118,6 +118,13 @@ public class SystemFileWalker {
         return new ArrayList<>(exceptionList);
     }
 
+    /**
+     * Проходит по дереву файлов
+     * @param path корневой файл
+     * @return объект, обходивший файлы.
+     * @see SystemFileWalker#getRootFile()
+     * @see SystemFileWalker#getSuppressedExceptions()
+     * **/
     public static SystemFileWalker walkFiles(Path path, FileVisitor visitor) throws IOException {
         File rootFile = File.readFile(path);
         SystemFileWalker walker = new SystemFileWalker(rootFile, visitor);

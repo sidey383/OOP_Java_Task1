@@ -25,8 +25,9 @@ public class FileTreeStringFactory {
     }
 
     /**
-     * Read all files in file tree.
-     * Writes all files in directories in order of decreasing size.
+     * Читает все файлы в файловом дереве и первращает его в строковое представление.
+     * <p> Применяет переданную конфигурацию {@link  FileTreeStringFactory#FileTreeStringFactory(FilesPrintOptions)}  FileTreeStringFactory}
+     * <p> Выводит все файлы в директории в порядке уменьешния размера.
      * @return new {@link StringBuilder} containing a file tree string
      * **/
     public StringBuilder createString(File root) {
@@ -59,7 +60,7 @@ public class FileTreeStringFactory {
     }
 
     /**
-     * @return Beautiful file representation
+     * @return Красивое представление файла
      * **/
     public String prettyFileString(File file) {
         StringBuilder builder = new StringBuilder();

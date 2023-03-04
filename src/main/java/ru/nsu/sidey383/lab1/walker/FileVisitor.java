@@ -11,24 +11,24 @@ import java.nio.file.Path;
 public interface FileVisitor {
 
     /**
-     * Call on visiting a file
+     * Вызывается при посещении файла не являющегося {@link DirectoryFile}.
      * **/
     void visitFile(File file);
 
     /**
-     * Visit the directory before going through the list of its files
-     * @return action for this directory. When action is {@link NextAction#CONTINUE} will visit children,
-     * else ignore them and don't call {@link FileVisitor#postVisitDirectory(DirectoryFile)} for this directory.
+     * Вызывается при первой встрече директории {@link DirectoryFile}, до обхода её потомков.
+     * @return Необходимо ли обходить потомков этой директории.
      * **/
     NextAction preVisitDirectory(DirectoryFile directory);
 
     /**
-     * Visit the directory after going through the list of its files
+     * Вызывается после обхода всех потомков этой директории.
+     * Не вызывается после возвращения {@link NextAction#STOP} из {@link FileVisitor#preVisitDirectory(DirectoryFile)}
      * **/
     void postVisitDirectory(DirectoryFile directory);
 
     /**
-     * Called when there is an error getting the file metadata
+     * Вызывается при ошибке чтения метаданных файла
      **/
     void pathVisitError(@Nullable Path path, @NotNull IOException e);
 

@@ -3,18 +3,18 @@ package ru.nsu.sidey383.lab1.model.file;
 import java.util.Set;
 
 /**
- * Extends of File interface for working with child files
+ * Расширенный файловый интерфейс для работы с дочерними файлами
  * **/
 public interface DirectoryFile extends File {
 
     /**
-     * @return copy of set of children files
+     * @return копию множества дочерних файлов
      * **/
     Set<File> getChildren();
 
     /**
-     * Add children for this file. Does not add a copies of file.
-     * <p> No effect on {@link File#getParent()}
+     * Добавить потомка для данного файла. Игнорирует копии.
+     * <p> Не влияет на состояние передаваемого файла, в частности на {@link File#getParent()}
      * **/
     void addChild(File file);
 

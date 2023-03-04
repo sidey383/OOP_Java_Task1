@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 /**
- * Common file interface
+ * Базовый инетрфейс файла
  * **/
 public interface File {
 
@@ -14,8 +14,18 @@ public interface File {
 
     long getSize();
 
+    /**
+     * Получить родительский файл.
+     * Нет гарантий, что данный файл является потомком возвращаемой директории
+     * @see DirectoryFile#getChildren()
+     * **/
     DirectoryFile getParent();
 
+    /**
+     * Изменяет только состоянние данного файла
+     * Не влияет на состояние родительской директории
+     * @return null или старая родительская директория
+     * **/
     @SuppressWarnings("UnusedReturnValue")
     DirectoryFile setParent(DirectoryFile file);
 
@@ -40,9 +50,9 @@ public interface File {
     }
 
     /**
-     * Factory method for creating {@link File}
-     * @throws SecurityException when don't have permission to resolve path or read file size
-     * @throws IOException if file doesn't exist or an I/O error occurs
+     * Фабричный метод для создания {@link File}
+     * @throws SecurityException в случае, если нет прав на разрешение пути или чтения атрибутов файла
+     * @throws IOException если файл не существует или в случае I/O exception
      * @see FileLore#createFileLore(Path)
      * **/
     static File readFile(Path path) throws IOException {

@@ -28,10 +28,10 @@ public interface FileLore {
     FileType fileType();
 
     /**
-     * Factory method for creating {@link FileLore}.
-     * <p> Before creating {@link FileLore} resolve path to file by {@link Path#toRealPath(LinkOption...)}
-     * @throws SecurityException when don't have permission to resolve path or read file size
-     * @throws IOException if file doesn't exist or an I/O error occurs
+     * Фабричный метод для создания {@link FileLore}.
+     * <p> Перед созданием объекта разрешает путь до файла, а для ссылок переходит по ссылке с помощью {@link Path#toRealPath(LinkOption...)}
+     * @throws SecurityException в случае, если нет прав на разрешение пути или чтения атрибутов файла
+     * @throws IOException если файл не существует или в случае I/O exception
      * @see Path#toRealPath(LinkOption...)
      * @see Files#readAttributes(Path, Class, LinkOption...)
      * @see Files#size(Path)
@@ -79,13 +79,13 @@ public interface FileLore {
     }
 
     /**
-     * Must generate only by path of file
+     * Хэш должен не зависеть от размера файла
      * **/
     @Override
     int hashCode();
 
     /**
-     * Must compare only by path of file
+     * Сравнение не должно зависеть от размера файла
      * **/
     @Override
     boolean equals(Object obj);

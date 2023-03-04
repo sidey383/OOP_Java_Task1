@@ -30,8 +30,8 @@ public enum FileType {
     }
 
     /**
-     * Return type of file by {@link BasicFileAttributes} data.
-     * <p> Does not check links, for all links return {@link FileType#UNDEFINED_LINK}
+     * Возвращает тип файла исходя из состояния {@link BasicFileAttributes}.
+     * <p> Не проверяет куда ведет ссылка. Для всех ссылок возвращает {@link FileType#UNDEFINED_LINK}
      * **/
     public static FileType toSimpleType(BasicFileAttributes attributes) {
         if (attributes.isRegularFile()) {
@@ -50,8 +50,8 @@ public enum FileType {
     }
 
     /**
-     * Convert simple {@link FileType} in link on this type <br>
-     * Saves links and {@link FileType#UNDEFINED}
+     * Прекращает обычный {@link FileType} в его ссылочный аналог <br>
+     * Сохраняет ссылки и {@link FileType#UNDEFINED}
      */
     public FileType toLink() {
         return switch (this) {
@@ -63,8 +63,8 @@ public enum FileType {
     }
 
     /**
-     * Convert link {@link FileType} in simple type <br>
-     * Saves simple types <br>
+     * Превращает ссылочный {@link FileType} в обычный вид <br>
+     * Сохраняет обычные типы <br>
      */
     @SuppressWarnings("unused")
     public FileType toReal() {

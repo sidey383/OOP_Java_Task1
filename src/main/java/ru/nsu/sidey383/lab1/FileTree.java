@@ -38,24 +38,23 @@ public class FileTree {
     }
 
     /**
-     * Base file for this tree.
-     * File lying on the basePath
-     * @return not null after correct complete of {@link FileTree#calculateTree()}
+     * возвращает null если метод {@link FileTree#calculateTree()} не был вызван или выкинул исключение
+     * @return корневой файл дерева
      * **/
     @Nullable
     public File getBaseFile() {
         return walker == null ? null : walker.getRootFile();
     }
 
-    /**
-     * @return all {@link IOException}, created in time of visit files.
+    /**x
+     * @return все {@link IOException}, созданные и подавленные при вызове {@link SystemFileWalker#walkFiles(Path, FileVisitor)} исключения.
      * **/
     public List<TreeBuildError> getErrors() {
         return List.copyOf(errors);
     }
 
     /**
-     * Check {@link FileTree#getErrors()} on empty list.
+     * Проверяет {@link FileTree#getErrors()} на предмет пустого списка
      * **/
     public boolean hasErrors() {
         return !errors.isEmpty();
@@ -72,17 +71,13 @@ public class FileTree {
         }
 
         /**
-         * Synchronizes the parent-child relation
+         * Синхронизует отношения файлов потомок-родитель
          * **/
         @Override
         public void visitFile(File file) {
             addChildToParent(file);
         }
 
-        /**
-         * Check directories on cycle.
-         * @return {@link NextAction#STOP} is this is second pass of this link or in configurations set followLink on false.
-         * **/
         @Override
         public NextAction preVisitDirectory(DirectoryFile directory) {
             if (directory.getFileType().isLink()) {
@@ -108,16 +103,13 @@ public class FileTree {
             return NextAction.CONTINUE;
         }
 
-        /**
-         * Synchronizes the parent-child relation
-         * **/
         @Override
         public void postVisitDirectory(DirectoryFile directory) {
             addChildToParent(directory);
         }
 
         /**
-         * Collect all errors.
+         * Собирает все ошибки
          *
          * @see FileTree#getErrors()
          **/

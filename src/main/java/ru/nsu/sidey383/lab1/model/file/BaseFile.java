@@ -4,8 +4,7 @@ import org.jetbrains.annotations.Nullable;
 import ru.nsu.sidey383.lab1.model.file.lore.FileLore;
 
 /**
- * Base realization of {@link File}
- * Con
+ * Базовая реализация {@link File}
  * **/
 public class BaseFile implements File {
 
@@ -18,18 +17,10 @@ public class BaseFile implements File {
         this.fileLore = fileLore;
     }
 
-    /**
-     * Get the parent file. There is no guarantee that this file is a child of this parent.
-     * **/
     public DirectoryFile getParent() {
         return parent;
     }
 
-    /**
-     * Change only local file state.
-     * Does not affect the state of the parent.
-     * @return old parent file or null
-     * **/
     @Nullable
     public DirectoryFile setParent(DirectoryFile parent) {
         DirectoryFile p = this.parent;

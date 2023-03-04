@@ -7,8 +7,8 @@ import ru.nsu.sidey383.lab1.write.size.SizeSuffixIEC;
 import java.nio.file.Path;
 
 /**
- * Disk usage configuration.
- * <p> For creating configuration instance use {@link DiskUsageOptions#builder()}
+ * конфигурация disk usage
+ * <p> Для создание конфигурации используйте {@link DiskUsageOptions#builder()}
  * @see ru.nsu.sidey383.lab1.options.FileTreeOptions
  * @see ru.nsu.sidey383.lab1.options.FilesPrintOptions
  * **/
