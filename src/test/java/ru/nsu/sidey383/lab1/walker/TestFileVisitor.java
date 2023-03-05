@@ -2,7 +2,6 @@ package ru.nsu.sidey383.lab1.walker;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.junit.jupiter.api.Assertions;
 import ru.nsu.sidey383.lab1.model.file.DirectoryFile;
 import ru.nsu.sidey383.lab1.model.file.File;
 
@@ -11,6 +10,8 @@ import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestFileVisitor implements FileVisitor {
 
@@ -27,34 +28,38 @@ public class TestFileVisitor implements FileVisitor {
     }
 
     public void checkOnEmpty() {
-        Assertions.assertEquals(new HashSet<>(), files);
-        Assertions.assertEquals(new HashSet<>(), preVisitDirs);
-        Assertions.assertEquals(new HashSet<>(), postVisitDirs);
+        assertAll(
+                "Expect empty path sets after visiting all files",
+                () -> assertEquals(new HashSet<>(), files, "Expect void set after visiting all files"),
+                () -> assertEquals(new HashSet<>(), preVisitDirs),
+                () -> assertEquals(new HashSet<>(), postVisitDirs)
+        );
+
     }
 
 
     @Override
     public void visitFile(File file) {
-        Assertions.assertTrue(files.remove(file));
+        assertTrue(files.remove(file), file + " not expected in visitFile");
     }
 
     @Override
     public NextAction preVisitDirectory(DirectoryFile directory) {
         if (directory.getFileType().isLink())
             return NextAction.STOP;
-        Assertions.assertTrue(preVisitDirs.remove(directory));
+        assertTrue(preVisitDirs.remove(directory), directory + " not expected in preVisitDirectory");
         return NextAction.CONTINUE;
     }
 
     @Override
     public void postVisitDirectory(DirectoryFile directory) {
-        Assertions.assertTrue(postVisitDirs.remove(directory));
+        assertTrue(postVisitDirs.remove(directory), directory + " not expected in postVisitDirectory");
     }
 
     @Override
     public void pathVisitError(@Nullable Path path, @NotNull IOException e) {
-        Assertions.assertDoesNotThrow(() -> {
+        assertDoesNotThrow(() -> {
             throw e;
-        });
+        }, "call pathVisitError for correct paths");
     }
 }

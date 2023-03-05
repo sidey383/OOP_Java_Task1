@@ -1,7 +1,8 @@
 package ru.nsu.sidey383.lab1.write.size;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 
@@ -10,7 +11,7 @@ public class SizeSuffixTest {
     private record SuffixTestData(SizeSuffix suffix, Long val, String result) {
 
         public void test() {
-            Assertions.assertEquals(result, suffix.getSuffix(val));
+            assertEquals(result, suffix.getSuffix(val), "Wrong size string by object " + suffix);
         }
 
     }

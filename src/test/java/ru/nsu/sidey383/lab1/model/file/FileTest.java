@@ -1,27 +1,28 @@
 package ru.nsu.sidey383.lab1.model.file;
 
 import org.junit.jupiter.api.*;
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import ru.nsu.sidey383.lab1.generator.SimpleFileSystemGenerator;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 
+@Order(2)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@TestClassOrder(ClassOrderer.OrderAnnotation.class)
 public class FileTest {
 
     @RegisterExtension
     private static final SimpleFileSystemGenerator fileSystem = new SimpleFileSystemGenerator();
 
     @Test
-    void simpleEqualsTest() {
+    @Order(1)
+    @DisplayName("Base check File#equals()")
+    void simpleEqualsTest() throws IOException {
 
-        List<File> files = fileSystem.getAllPaths().stream().map(p -> {
-            try {
-                return File.readFile(p);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }).toList();
+        List<Path> files = fileSystem.getAllPaths();
 
         for (int i = 0; i < files.size(); i++) {
             for (int j = 0; j < files.size(); j++) {
@@ -36,24 +37,16 @@ public class FileTest {
     }
 
     @Test
-    void differentPathEqualsTest() {
+    @Order(2)
+    @DisplayName("Check File#equals() by different path")
+    void differentPathEqualsTest() throws IOException {
 
-        List<List<File>> equalsFilesLists = fileSystem.getEqualsPathsLists().stream()
-                .map((list) ->
-                        list.stream().map((path -> {
-                            try {
-                                return File.readFile(path);
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-                        )).toList())
-                .toList();
+        List<List<Path>> equalsPathLists = fileSystem.getEqualsPathsLists();
 
-        for (int i = 1; i < equalsFilesLists.size(); i++) {
-            List<File> fileList1 = equalsFilesLists.get(i);
+        for (int i = 1; i < equalsPathLists.size(); i++) {
+            List<Path> fileList1 = equalsPathLists.get(i);
             for (int j = 0; j < i; j++) {
-                List<File> fileList2 = equalsFilesLists.get(j);
+                List<Path> fileList2 = equalsPathLists.get(j);
                 for (int k = 0; k < fileList1.size(); k++) {
                     for (int l = 0; l < fileList2.size(); l++) {
                         if (k == l)
@@ -67,15 +60,20 @@ public class FileTest {
 
     }
 
-    private void checkFileEquals(File f1, File f2) {
-        Assertions.assertEquals(f1, f2);
-        Assertions.assertEquals(f1.hashCode(), f2.hashCode());
-        Assertions.assertEquals(f1.getFileLore(), f2.getFileLore());
+    private void checkFileEquals(Path p1, Path p2) throws IOException {
+        File f1 = File.readFile(p1);
+        File f2 = File.readFile(p2);
+        assertAll("Compare files from " + p1 + " and " + p2 + ". Except equals.",
+                () -> assertEquals(f1, f2, "file1.equals(file2) return false"),
+                () -> assertEquals(f1.hashCode(), f2.hashCode(), "file1.hashCode() == file2.hashCode() return false"),
+                () -> assertEquals(f1.getFileLore(), f2.getFileLore(), "file1.getFileLore().equals(file2.getFileLore()) return false"));
     }
 
-    private void checkFileNotEquals(File f1, File f2) {
-        Assertions.assertNotEquals(f1, f2);
-        Assertions.assertNotEquals(f1.hashCode(), f2.hashCode());
-        Assertions.assertNotEquals(f1.getFileLore(), f2.getFileLore());
+    private void checkFileNotEquals(Path p1, Path p2) throws IOException {
+        File f1 = File.readFile(p1);
+        File f2 = File.readFile(p2);
+        assertAll("Compare files from " + p1 + " and " + p2 + ". Expect not equals.z",
+                () -> assertNotEquals(f1, f2, "file1.equals(file2) return true"),
+                () -> assertNotEquals(f1.getFileLore(), f2.getFileLore(), "file1.getFileLore().equals(file2.getFileLore()) return true"));
     }
 }
