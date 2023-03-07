@@ -3,6 +3,8 @@ package ru.nsu.sidey383.lab1.walker;
 import org.jetbrains.annotations.NotNull;
 import ru.nsu.sidey383.lab1.model.file.DirectoryFile;
 import ru.nsu.sidey383.lab1.model.file.File;
+import ru.nsu.sidey383.lab1.model.file.exception.PathException;
+import ru.nsu.sidey383.lab1.model.file.exception.PathFileStreamException;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -16,7 +18,7 @@ public class SystemFileWalker {
 
     private final File rootFile;
 
-    private List<IOException> exceptionList;
+    private List<PathException> exceptionList;
 
     private SystemFileWalker(File dirFile, FileVisitor visitor) {
         this.rootFile = dirFile;
@@ -30,9 +32,13 @@ public class SystemFileWalker {
 
         private final DirectoryStream<Path> stream;
 
-        public DirectoryNode(@NotNull DirectoryFile file) throws IOException {
+        public DirectoryNode(@NotNull DirectoryFile file) throws PathFileStreamException {
             this.file = file;
-            this.stream = Files.newDirectoryStream(this.file.getResolvedPath());
+            try {
+                this.stream = Files.newDirectoryStream(this.file.getResolvedPath());
+            } catch (IOException e) {
+                throw new PathFileStreamException(file.getOriginalPath(), e);
+            }
             this.iterator = this.stream.iterator();
         }
 
@@ -51,7 +57,7 @@ public class SystemFileWalker {
         }
     }
 
-    private void walk() {
+    private void walk() throws IOException {
         exceptionList = new ArrayList<>();
         if (rootFile instanceof DirectoryFile rootDir) {
             ArrayDeque<DirectoryNode> queue = new ArrayDeque<>();
@@ -78,7 +84,7 @@ public class SystemFileWalker {
         }
     }
 
-    private void visitFile(Path path, ArrayDeque<DirectoryNode> queue, DirectoryFile parent) {
+    private void visitFile(Path path, ArrayDeque<DirectoryNode> queue, DirectoryFile parent) throws IOException {
         try {
             File file = File.readFile(path);
             file.setParent(parent);
@@ -89,7 +95,7 @@ public class SystemFileWalker {
             } else {
                 visitor.visitFile(file);
             }
-        } catch (IOException e) {
+        } catch (PathException e) {
             visitor.pathVisitError(path, e);
         }
     }
@@ -97,7 +103,7 @@ public class SystemFileWalker {
     private void initQueue(ArrayDeque<DirectoryNode> queue, DirectoryFile rootDir) {
         try {
             queue.add(new DirectoryNode(rootDir));
-        } catch (IOException e) {
+        } catch (PathException e) {
             visitor.pathVisitError(rootDir.getOriginalPath(), e);
         }
     }
@@ -106,7 +112,7 @@ public class SystemFileWalker {
         try {
             node.close();
         } catch (IOException e) {
-            exceptionList.add(e);
+            exceptionList.add(new PathFileStreamException(node.getDir().getOriginalPath(), e));
         }
     }
 
@@ -114,7 +120,7 @@ public class SystemFileWalker {
         return rootFile;
     }
 
-    public List<IOException> getSuppressedExceptions() {
+    public List<PathException> getSuppressedExceptions() {
         return new ArrayList<>(exceptionList);
     }
 
@@ -125,7 +131,7 @@ public class SystemFileWalker {
      * @see SystemFileWalker#getRootFile()
      * @see SystemFileWalker#getSuppressedExceptions()
      * **/
-    public static SystemFileWalker walkFiles(Path path, FileVisitor visitor) throws IOException {
+    public static SystemFileWalker walkFiles(Path path, FileVisitor visitor) throws IOException, PathException {
         File rootFile = File.readFile(path);
         SystemFileWalker walker = new SystemFileWalker(rootFile, visitor);
         walker.walk();

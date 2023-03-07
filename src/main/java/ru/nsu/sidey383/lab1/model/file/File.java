@@ -1,5 +1,8 @@
 package ru.nsu.sidey383.lab1.model.file;
 
+import ru.nsu.sidey383.lab1.model.file.exception.PathSecurityException;
+import ru.nsu.sidey383.lab1.model.file.exception.PathUnsupportedOperationException;
+import ru.nsu.sidey383.lab1.model.file.exception.PathException;
 import ru.nsu.sidey383.lab1.model.file.lore.FileLore;
 
 import java.io.IOException;
@@ -51,11 +54,12 @@ public interface File {
 
     /**
      * Фабричный метод для создания {@link File}
-     * @throws SecurityException в случае, если нет прав на разрешение пути или чтения атрибутов файла
+     * @throws PathUnsupportedOperationException если невозможно получить атрибуты файла
+     * @throws PathSecurityException если нет прав на работу с данным файлом
      * @throws IOException если файл не существует или в случае I/O exception
      * @see FileLore#createFileLore(Path)
      * **/
-    static File readFile(Path path) throws IOException {
+    static File readFile(Path path) throws PathException, IOException {
         FileLore lore = FileLore.createFileLore(path);
         return switch (lore.fileType()) {
             case DIRECTORY -> new DefaultDirectoryFile(lore);

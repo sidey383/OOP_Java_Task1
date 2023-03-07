@@ -2,6 +2,7 @@ package ru.nsu.sidey383.lab1.model.file.lore;
 
 import org.jetbrains.annotations.NotNull;
 import ru.nsu.sidey383.lab1.model.file.FileType;
+import ru.nsu.sidey383.lab1.model.file.exception.*;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -30,51 +31,49 @@ public interface FileLore {
     /**
      * Фабричный метод для создания {@link FileLore}.
      * <p> Перед созданием объекта разрешает путь до файла, а для ссылок переходит по ссылке с помощью {@link Path#toRealPath(LinkOption...)}
-     * @throws SecurityException в случае, если нет прав на разрешение пути или чтения атрибутов файла
+     * @throws PathUnsupportedOperationException если невозможно получить атрибуты файла
+     * @throws PathSecurityException если нет прав на работу с данным файлом
      * @throws IOException если файл не существует или в случае I/O exception
      * @see Path#toRealPath(LinkOption...)
      * @see Files#readAttributes(Path, Class, LinkOption...)
      * @see Files#size(Path)
      * **/
-    static FileLore createFileLore(@NotNull Path path) throws IOException {
-        Path originalPath;
-        FileType originalType;
-        long originalSize;
-
+    static FileLore createFileLore(@NotNull Path path) throws PathException, IOException {
         try {
-            originalPath = path.toRealPath(LinkOption.NOFOLLOW_LINKS);
-        } catch (NotDirectoryException e1) {
-            originalPath = path.toRealPath();
-        }
+            Path originalPath;
+            try {
+                originalPath = path.toRealPath(LinkOption.NOFOLLOW_LINKS);
+            } catch (NotDirectoryException e1) {
+                originalPath = path.toRealPath();
+            }
 
-        try {
+
             BasicFileAttributes originalAttributes = Files.readAttributes(originalPath, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
-            originalSize = originalAttributes.size();
-            originalType = FileType.toSimpleType(originalAttributes);
-        } catch (UnsupportedOperationException | FileSystemException e) {
-            originalSize = Files.size(originalPath);
-            originalType = FileType.UNDEFINED;
-        }
-        if (originalSize < 0)
-            originalSize = 0;
+            long originalSize = originalAttributes.size();
+            FileType originalType = FileType.toSimpleType(originalAttributes);
+            if (originalSize < 0)
+                originalSize = 0;
 
-        if (originalType.isLink()) {
-            Path resolvedPath;
-            FileType resolvedType;
-            long resolvedSize;
+            if (originalType.isLink()) {
 
-            resolvedPath = path.toRealPath();
+                Path resolvedPath = path.toRealPath();
+                BasicFileAttributes resolvedAttributes = Files.readAttributes(resolvedPath, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
+                long resolvedSize = resolvedAttributes.size();
+                FileType resolvedType = FileType.toSimpleType(resolvedAttributes);
 
-            BasicFileAttributes originalAttributes = Files.readAttributes(resolvedPath, BasicFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
-            resolvedSize = originalAttributes.size();
-            resolvedType = FileType.toSimpleType(originalAttributes);
+                if (resolvedSize < 0)
+                    resolvedSize = 0;
 
-            if (resolvedSize < 0)
-                resolvedSize = 0;
-
-            return new DefaultFileLore(resolvedType == FileType.UNDEFINED ? FileType.UNDEFINED_LINK : resolvedType.toLink(), originalPath, originalSize, resolvedPath, resolvedSize);
-        } else {
-            return new DefaultFileLore(originalType, originalPath, originalSize, originalPath, originalSize);
+                return new DefaultFileLore(resolvedType == FileType.UNDEFINED ? FileType.UNDEFINED_LINK : resolvedType.toLink(), originalPath, originalSize, resolvedPath, resolvedSize);
+            } else {
+                return new DefaultFileLore(originalType, originalPath, originalSize, originalPath, originalSize);
+            }
+        } catch (SecurityException e) {
+            throw new PathSecurityException(path, e);
+        } catch (UnsupportedOperationException e) {
+            throw new PathUnsupportedOperationException(path, e);
+        } catch (FileSystemException e) {
+            throw new PathFileSystemException(path, e);
         }
     }
 

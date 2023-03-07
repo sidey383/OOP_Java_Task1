@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import ru.nsu.sidey383.lab1.generator.FileWithSize;
 import ru.nsu.sidey383.lab1.generator.SimpleFileSystemGenerator;
+import ru.nsu.sidey383.lab1.model.file.exception.PathException;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -22,7 +23,7 @@ public class FileLoreTest {
     @Test
     @Order(1)
     @DisplayName("Base check FileLore#equals()")
-    void simpleEqualsTest() throws IOException {
+    void simpleEqualsTest() throws IOException, PathException {
         List<Path> files = fileSystem.getAllPaths();
         for (int i = 0; i < files.size(); i++) {
             for (int j = 0; j < files.size(); j++) {
@@ -38,7 +39,7 @@ public class FileLoreTest {
     @Test
     @Order(2)
     @DisplayName("Check FileLore#equals() by different path")
-    void differentPathEqualsTest() throws IOException {
+    void differentPathEqualsTest() throws IOException, PathException {
         List<List<Path>> equalsFilesLists = fileSystem.getEqualsPathsLists();
 
         for (int i = 1; i < equalsFilesLists.size(); i++) {
@@ -61,14 +62,14 @@ public class FileLoreTest {
     @Test
     @Order(3)
     @DisplayName("Check size of file calculating")
-    public void sizeTest() throws IOException {
+    public void sizeTest() throws IOException, PathException {
         for (FileWithSize fws : fileSystem.getFileWithSizes()) {
             FileLore lore = FileLore.createFileLore(fws.path());
             Assertions.assertEquals(lore.resolvedSize(), fws.size());
         }
     }
 
-    private void checkFileEquals(Path p1, Path p2) throws IOException {
+    private void checkFileEquals(Path p1, Path p2) throws IOException, PathException {
         FileLore f1 = FileLore.createFileLore(p1);
         FileLore f2 = FileLore.createFileLore(p2);
         assertAll("Compare file lore from " + p1 + " and " + p2 + ". Except equals.",
@@ -81,7 +82,7 @@ public class FileLoreTest {
         );
     }
 
-    private void checkFileNotEquals(Path p1, Path p2) throws IOException {
+    private void checkFileNotEquals(Path p1, Path p2) throws IOException, PathException {
         FileLore f1 = FileLore.createFileLore(p1);
         FileLore f2 = FileLore.createFileLore(p2);
         assertAll("Compare file lore from " + p1 + " and " + p2 + ". Except not equals.",

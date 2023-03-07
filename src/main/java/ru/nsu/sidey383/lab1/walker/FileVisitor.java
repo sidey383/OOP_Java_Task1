@@ -4,8 +4,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.nsu.sidey383.lab1.model.file.DirectoryFile;
 import ru.nsu.sidey383.lab1.model.file.File;
+import ru.nsu.sidey383.lab1.model.file.exception.PathException;
 
-import java.io.IOException;
 import java.nio.file.Path;
 
 public interface FileVisitor {
@@ -30,6 +30,6 @@ public interface FileVisitor {
     /**
      * Вызывается при ошибке чтения метаданных файла
      **/
-    void pathVisitError(@Nullable Path path, @NotNull IOException e);
+    void pathVisitError(@Nullable Path path, @NotNull PathException e);
 
 }

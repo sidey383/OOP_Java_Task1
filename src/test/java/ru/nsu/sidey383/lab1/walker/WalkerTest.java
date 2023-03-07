@@ -7,6 +7,7 @@ import ru.nsu.sidey383.lab1.generator.SimpleFileSystemGenerator;
 import ru.nsu.sidey383.lab1.model.file.DirectoryFile;
 import ru.nsu.sidey383.lab1.model.file.File;
 import ru.nsu.sidey383.lab1.model.file.FileType;
+import ru.nsu.sidey383.lab1.model.file.exception.PathException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -21,18 +22,18 @@ public class WalkerTest {
 
     @Test
     @DisplayName("Check all file visiting for simple sile system")
-    public void allFileTest() throws IOException {
+    public void allFileTest() throws IOException, PathException {
         List<File> files = fileSystem.getAllPaths().stream().map(path -> {
             try {
                 return File.readFile(path);
-            } catch (IOException e) {
+            } catch (IOException | PathException e) {
                 throw new RuntimeException(e);
             }
         }).filter(f -> !(f instanceof DirectoryFile)).toList();
         List<DirectoryFile> dirs = fileSystem.getAllPaths().stream().map(path -> {
             try {
                 return File.readFile(path);
-            } catch (IOException e) {
+            } catch (IOException | PathException e) {
                 throw new RuntimeException(e);
             }
         }).filter(f -> f.getFileType() == FileType.DIRECTORY).map(f -> (DirectoryFile) f).toList();

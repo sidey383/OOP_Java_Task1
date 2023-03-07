@@ -1,5 +1,6 @@
 package ru.nsu.sidey383.lab1;
 
+import ru.nsu.sidey383.lab1.model.file.exception.PathException;
 import ru.nsu.sidey383.lab1.options.DiskUsageOptions;
 import ru.nsu.sidey383.lab1.write.FileTreeStringFactory;
 import ru.nsu.sidey383.lab1.write.size.SizeSuffixIEC;
@@ -26,13 +27,16 @@ public class Main {
         FileTree fileTree = new FileTree(options);
         try {
             fileTree.calculateTree();
+        } catch (PathException e) {
+            System.err.println(e.toUserMessage());
+            return;
         } catch (IOException e) {
             System.err.println("File tree build error");
             return;
         }
         if (fileTree.hasErrors())
-            for (TreeBuildError error : fileTree.getErrors())
-                System.err.println(error);
+            for (PathException error : fileTree.getErrors())
+                System.err.println(error.toUserMessage());
         FileTreeStringFactory printer = new FileTreeStringFactory(options);
         System.out.println(printer.createString(fileTree.getBaseFile()));
     }

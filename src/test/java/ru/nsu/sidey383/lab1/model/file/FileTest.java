@@ -4,6 +4,7 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import ru.nsu.sidey383.lab1.generator.SimpleFileSystemGenerator;
+import ru.nsu.sidey383.lab1.model.file.exception.PathException;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -20,7 +21,7 @@ public class FileTest {
     @Test
     @Order(1)
     @DisplayName("Base check File#equals()")
-    void simpleEqualsTest() throws IOException {
+    void simpleEqualsTest() throws IOException, PathException {
 
         List<Path> files = fileSystem.getAllPaths();
 
@@ -39,7 +40,7 @@ public class FileTest {
     @Test
     @Order(2)
     @DisplayName("Check File#equals() by different path")
-    void differentPathEqualsTest() throws IOException {
+    void differentPathEqualsTest() throws IOException, PathException {
 
         List<List<Path>> equalsPathLists = fileSystem.getEqualsPathsLists();
 
@@ -60,7 +61,7 @@ public class FileTest {
 
     }
 
-    private void checkFileEquals(Path p1, Path p2) throws IOException {
+    private void checkFileEquals(Path p1, Path p2) throws IOException, PathException {
         File f1 = File.readFile(p1);
         File f2 = File.readFile(p2);
         assertAll("Compare files from " + p1 + " and " + p2 + ". Except equals.",
@@ -69,7 +70,7 @@ public class FileTest {
                 () -> assertEquals(f1.getFileLore(), f2.getFileLore(), "file1.getFileLore().equals(file2.getFileLore()) return false"));
     }
 
-    private void checkFileNotEquals(Path p1, Path p2) throws IOException {
+    private void checkFileNotEquals(Path p1, Path p2) throws IOException, PathException {
         File f1 = File.readFile(p1);
         File f2 = File.readFile(p2);
         assertAll("Compare files from " + p1 + " and " + p2 + ". Expect not equals.z",

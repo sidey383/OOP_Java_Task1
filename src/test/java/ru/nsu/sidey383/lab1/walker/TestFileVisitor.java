@@ -4,8 +4,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.nsu.sidey383.lab1.model.file.DirectoryFile;
 import ru.nsu.sidey383.lab1.model.file.File;
+import ru.nsu.sidey383.lab1.model.file.exception.PathException;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.HashSet;
@@ -57,7 +57,7 @@ public class TestFileVisitor implements FileVisitor {
     }
 
     @Override
-    public void pathVisitError(@Nullable Path path, @NotNull IOException e) {
+    public void pathVisitError(@Nullable Path path, @NotNull PathException e) {
         assertDoesNotThrow(() -> {
             throw e;
         }, "call pathVisitError for correct paths");

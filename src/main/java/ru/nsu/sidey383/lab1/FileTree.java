@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import ru.nsu.sidey383.lab1.model.file.DirectoryFile;
 import ru.nsu.sidey383.lab1.model.file.File;
+import ru.nsu.sidey383.lab1.model.file.exception.PathException;
 import ru.nsu.sidey383.lab1.options.FileTreeOptions;
 import ru.nsu.sidey383.lab1.walker.FileVisitor;
 import ru.nsu.sidey383.lab1.walker.NextAction;
@@ -23,18 +24,18 @@ public class FileTree {
 
     private SystemFileWalker walker = null;
 
-    private List<TreeBuildError> errors;
+    private List<PathException> errors;
 
     public FileTree(FileTreeOptions options) {
         this.basePath = options.getFilePath();
         this.followLinks = options.followLink();
     }
 
-    public void calculateTree() throws IOException {
+    public void calculateTree() throws IOException, PathException {
         errors = new ArrayList<>();
         walker = null;
         walker = SystemFileWalker.walkFiles(basePath, new TreeVisitor());
-        errors.addAll(walker.getSuppressedExceptions().stream().map(e -> new TreeBuildError(null, null, e)).toList());
+        errors.addAll(walker.getSuppressedExceptions());
     }
 
     /**
@@ -49,7 +50,7 @@ public class FileTree {
     /**x
      * @return все {@link IOException}, созданные и подавленные при вызове {@link SystemFileWalker#walkFiles(Path, FileVisitor)} исключения.
      * **/
-    public List<TreeBuildError> getErrors() {
+    public List<PathException> getErrors() {
         return List.copyOf(errors);
     }
 
@@ -114,8 +115,8 @@ public class FileTree {
          * @see FileTree#getErrors()
          **/
         @Override
-        public void pathVisitError(@Nullable Path path, @NotNull IOException e) {
-            errors.add(new TreeBuildError(path, null, e));
+        public void pathVisitError(@Nullable Path path, @NotNull PathException e) {
+            errors.add(e);
         }
 
     }

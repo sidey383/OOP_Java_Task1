@@ -7,6 +7,7 @@ import ru.nsu.sidey383.lab1.generator.SimpleFileSystemGenerator;
 import ru.nsu.sidey383.lab1.model.file.DirectoryFile;
 import ru.nsu.sidey383.lab1.model.file.File;
 import ru.nsu.sidey383.lab1.model.file.FileType;
+import ru.nsu.sidey383.lab1.model.file.exception.PathException;
 import ru.nsu.sidey383.lab1.options.FileTreeOptions;
 
 import java.io.IOException;
@@ -23,7 +24,7 @@ public class FileTreeTest {
     private static final SimpleFileSystemGenerator fileSystem = new SimpleFileSystemGenerator();
 
     @Test
-    public void testWithoutLinks() throws IOException {
+    public void testWithoutLinks() throws IOException, PathException {
         FileTree tree = new FileTree(new FileTreeOptions() {
             @Override
             public boolean followLink() {
