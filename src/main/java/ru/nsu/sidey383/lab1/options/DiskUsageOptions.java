@@ -24,7 +24,9 @@ public class DiskUsageOptions implements FileTreeOptions, FilesPrintOptions {
 
     private final SizeSuffix sizeSuffix;
 
-
+    /*
+    * CR: Too much construction parameters length (> 120). Use line breaks.
+    * */
     private DiskUsageOptions(boolean followLinks, int maxDepth, int fileInDirLimit, @NotNull Path filePath, @NotNull SizeSuffix sizeSuffix) {
         this.followLinks = followLinks;
         this.maxDepth = maxDepth;

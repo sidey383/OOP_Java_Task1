@@ -27,7 +27,7 @@ public class FileTreeStringFactory {
     /**
      * Читает все файлы в файловом дереве и первращает его в строковое представление.
      * <p> Применяет переданную конфигурацию {@link  FileTreeStringFactory#FileTreeStringFactory(FilesPrintOptions)}  FileTreeStringFactory}
-     * <p> Выводит все файлы в директории в порядке уменьешния размера.
+     * <p> Выводит все файлы в директории в порядке уменьшения размера.
      * @return new {@link StringBuilder} containing a file tree string
      * **/
     public StringBuilder createString(File root) {

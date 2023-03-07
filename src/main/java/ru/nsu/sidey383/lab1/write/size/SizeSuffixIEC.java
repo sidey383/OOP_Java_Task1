@@ -34,6 +34,7 @@ public enum SizeSuffixIEC implements SizeSuffix {
         return BYTE;
     }
 
+    // CR: Duplicate code. Maybe use Abstract class to generify it?
     private String getSuffix(long size, double prevPart) {
         if (size < 0 || prevPart < 0 || prevPart > 1)
             throw new IllegalArgumentException(

@@ -38,6 +38,10 @@ public class FileTree {
         errors.addAll(walker.getSuppressedExceptions());
     }
 
+    /*
+    * CR: Use same format for all JavaDocs. Title() it, use tab, put dots and more.
+    * */
+
     /**
      * возвращает null если метод {@link FileTree#calculateTree()} не был вызван или выкинул исключение
      * @return корневой файл дерева
@@ -83,6 +87,10 @@ public class FileTree {
         public NextAction preVisitDirectory(DirectoryFile directory) {
             if (directory.getFileType().isLink()) {
                 if (followLinks) {
+                    /*
+                    * CR: Put for loop into the function or decompose it by another way.
+                    *     Too much condition jumps.
+                    * */
                     if (passedLinks.contains(directory)) {
                         for (File f : passedLinks) {
                             if (directory.equals(f)) {
