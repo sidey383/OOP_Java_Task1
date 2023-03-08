@@ -10,8 +10,8 @@ import java.nio.file.attribute.BasicFileAttributes;
 
 
 /**
- * Additional {@link ru.nsu.sidey383.lab1.model.file.File} data
- * **/
+ * Дополнительные данные для {@link ru.nsu.sidey383.lab1.model.file.File}.
+ */
 public interface FileLore {
 
 
@@ -30,14 +30,17 @@ public interface FileLore {
 
     /**
      * Фабричный метод для создания {@link FileLore}.
-     * <p> Перед созданием объекта разрешает путь до файла, а для ссылок переходит по ссылке с помощью {@link Path#toRealPath(LinkOption...)}
-     * @throws PathUnsupportedOperationException если невозможно получить атрибуты файла
-     * @throws PathSecurityException если нет прав на работу с данным файлом
-     * @throws IOException если файл не существует или в случае I/O exception
+     * <p> Перед созданием объекта разрешает путь до файла, а для ссылок переходит по ссылке с помощью {@link Path#toRealPath(LinkOption...)}.
+     *
+     * @throws PathUnsupportedOperationException если невозможно получить атрибуты файла.
+     * @throws PathSecurityException если нет прав на работу с данным файлом.
+     * @throws PathFileSystemException при ошибке файловой системы.
+     * @throws IOException если файл не существует или в случае I/O exception.
+     *
      * @see Path#toRealPath(LinkOption...)
      * @see Files#readAttributes(Path, Class, LinkOption...)
      * @see Files#size(Path)
-     * **/
+     */
     static FileLore createFileLore(@NotNull Path path) throws PathException, IOException {
         try {
             Path originalPath;
@@ -78,14 +81,14 @@ public interface FileLore {
     }
 
     /**
-     * Хэш должен не зависеть от размера файла
-     * **/
+     * Хэш должен не зависеть от размера файла.
+     */
     @Override
     int hashCode();
 
     /**
-     * Сравнение не должно зависеть от размера файла
-     * **/
+     * Сравнение должно не зависеть от размера файла.
+     */
     @Override
     boolean equals(Object obj);
 

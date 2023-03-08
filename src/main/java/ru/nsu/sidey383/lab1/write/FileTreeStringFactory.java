@@ -28,8 +28,8 @@ public class FileTreeStringFactory {
      * Читает все файлы в файловом дереве и первращает его в строковое представление.
      * <p> Применяет переданную конфигурацию {@link  FileTreeStringFactory#FileTreeStringFactory(FilesPrintOptions)}  FileTreeStringFactory}
      * <p> Выводит все файлы в директории в порядке уменьшения размера.
-     * @return new {@link StringBuilder} containing a file tree string
-     * **/
+     * @return новый {@link StringBuilder} содержащий в себе строкове предсталение дерева.
+     */
     public StringBuilder createString(File root) {
         Stack<Iterator<File>> dirStack = new Stack<>();
         File now = root;
@@ -60,8 +60,8 @@ public class FileTreeStringFactory {
     }
 
     /**
-     * @return Красивое представление файла
-     * **/
+     * @return красивое представление файла.
+     */
     public String prettyFileString(File file) {
         StringBuilder builder = new StringBuilder();
         FileType type = file.getFileType();
@@ -83,7 +83,7 @@ public class FileTreeStringFactory {
         } else if (type == FileType.OTHER) {
             builder.append("[unknown type]");
         } else {
-            builder.append("[").append(sizeSuffix.getSuffix(file.getSize())).append("]");
+            builder.append("[").append(sizeSuffix.getValue(file.getSize())).append("]");
         }
 
         return builder.toString();

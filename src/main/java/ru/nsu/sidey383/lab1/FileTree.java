@@ -38,29 +38,26 @@ public class FileTree {
         errors.addAll(walker.getSuppressedExceptions());
     }
 
-    /*
-    * CR: Use same format for all JavaDocs. Title() it, use tab, put dots and more.
-    * */
-
     /**
-     * возвращает null если метод {@link FileTree#calculateTree()} не был вызван или выкинул исключение
-     * @return корневой файл дерева
-     * **/
+     * Возвращает null если метод {@link FileTree#calculateTree()} не был вызван или выкинул исключение.
+     *
+     * @return корневой файл дерева.
+     */
     @Nullable
     public File getBaseFile() {
         return walker == null ? null : walker.getRootFile();
     }
 
-    /**x
-     * @return все {@link IOException}, созданные и подавленные при вызове {@link SystemFileWalker#walkFiles(Path, FileVisitor)} исключения.
-     * **/
+    /**
+     * @return все {@link PathException}, созданные и подавленные при вызове {@link SystemFileWalker#walkFiles(Path, FileVisitor)}.
+     */
     public List<PathException> getErrors() {
         return List.copyOf(errors);
     }
 
     /**
-     * Проверяет {@link FileTree#getErrors()} на предмет пустого списка
-     * **/
+     * Проверяет {@link FileTree#getErrors()} на пустой список.
+     */
     public boolean hasErrors() {
         return !errors.isEmpty();
     }
@@ -76,8 +73,8 @@ public class FileTree {
         }
 
         /**
-         * Синхронизует отношения файлов потомок-родитель
-         * **/
+         * Синхронизует отношения файлов потомок-родитель.
+         */
         @Override
         public void visitFile(File file) {
             addChildToParent(file);
@@ -85,31 +82,30 @@ public class FileTree {
 
         @Override
         public NextAction preVisitDirectory(DirectoryFile directory) {
-            if (directory.getFileType().isLink()) {
-                if (followLinks) {
-                    /*
-                    * CR: Put for loop into the function or decompose it by another way.
-                    *     Too much condition jumps.
-                    * */
-                    if (passedLinks.contains(directory)) {
-                        for (File f : passedLinks) {
-                            if (directory.equals(f)) {
-                                DirectoryFile parent = directory.getParent();
-                                if (parent != null)
-                                    parent.addChild(f);
-                                break;
-                            }
-                        }
-                        return NextAction.STOP;
-                    } else {
-                        passedLinks.add(directory);
-                    }
-                } else {
-                    addChildToParent(directory);
-                    return NextAction.STOP;
+            if (!directory.getFileType().isLink()) {
+                return NextAction.CONTINUE;
+            }
+
+            if (!followLinks) {
+                addChildToParent(directory);
+                return NextAction.STOP;
+            }
+
+            if (!passedLinks.contains(directory)) {
+                passedLinks.add(directory);
+                return NextAction.CONTINUE;
+            }
+
+            for (File f : passedLinks) {
+                if (directory.equals(f)) {
+                    DirectoryFile parent = directory.getParent();
+                    if (parent != null)
+                        parent.addChild(f);
+                    break;
                 }
             }
-            return NextAction.CONTINUE;
+
+            return NextAction.STOP;
         }
 
         @Override
@@ -118,10 +114,10 @@ public class FileTree {
         }
 
         /**
-         * Собирает все ошибки
+         * Собирает все ошибки.
          *
          * @see FileTree#getErrors()
-         **/
+         */
         @Override
         public void pathVisitError(@Nullable Path path, @NotNull PathException e) {
             errors.add(e);

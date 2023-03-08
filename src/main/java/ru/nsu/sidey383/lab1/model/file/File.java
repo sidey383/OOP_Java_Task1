@@ -1,16 +1,18 @@
 package ru.nsu.sidey383.lab1.model.file;
 
+import ru.nsu.sidey383.lab1.model.file.exception.PathFileSystemException;
 import ru.nsu.sidey383.lab1.model.file.exception.PathSecurityException;
 import ru.nsu.sidey383.lab1.model.file.exception.PathUnsupportedOperationException;
 import ru.nsu.sidey383.lab1.model.file.exception.PathException;
 import ru.nsu.sidey383.lab1.model.file.lore.FileLore;
 
 import java.io.IOException;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 
 /**
- * Базовый инетрфейс файла
- * **/
+ * Базовый инетрфейс файла.
+ */
 public interface File {
 
     FileLore getFileLore();
@@ -19,16 +21,18 @@ public interface File {
 
     /**
      * Получить родительский файл.
-     * Нет гарантий, что данный файл является потомком возвращаемой директории
+     * <p> Нет гарантий, что данный файл является потомком возвращаемой директории.
+     *
      * @see DirectoryFile#getChildren()
-     * **/
+     */
     DirectoryFile getParent();
 
     /**
-     * Изменяет только состоянние данного файла
-     * Не влияет на состояние родительской директории
-     * @return null или старая родительская директория
-     * **/
+     * Изменяет только состоянние данного файла.
+     * <p> Не влияет на состояние родительской директории.
+     *
+     * @return null или старая родительская директория.
+     */
     @SuppressWarnings("UnusedReturnValue")
     DirectoryFile setParent(DirectoryFile file);
 
@@ -53,12 +57,16 @@ public interface File {
     }
 
     /**
-     * Фабричный метод для создания {@link File}
-     * @throws PathUnsupportedOperationException если невозможно получить атрибуты файла
-     * @throws PathSecurityException если нет прав на работу с данным файлом
-     * @throws IOException если файл не существует или в случае I/O exception
+     * Фабричный метод для создания {@link File}.
+     * <p> Перед созданием объекта разрешает путь до файла, а для ссылок переходит по ссылке с помощью {@link Path#toRealPath(LinkOption...)}.
+     *
+     * @throws PathUnsupportedOperationException если невозможно получить атрибуты файла.
+     * @throws PathSecurityException если нет прав на работу с данным файлом.
+     * @throws PathFileSystemException при ошибке файловой системы.
+     * @throws IOException если файл не существует или в случае I/O exception.
+     *
      * @see FileLore#createFileLore(Path)
-     * **/
+     */
     static File readFile(Path path) throws PathException, IOException {
         FileLore lore = FileLore.createFileLore(path);
         return switch (lore.fileType()) {

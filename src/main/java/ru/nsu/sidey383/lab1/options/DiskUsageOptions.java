@@ -7,11 +7,12 @@ import ru.nsu.sidey383.lab1.write.size.SizeSuffixIEC;
 import java.nio.file.Path;
 
 /**
- * конфигурация disk usage
- * <p> Для создание конфигурации используйте {@link DiskUsageOptions#builder()}
+ * конфигурация disk usage.
+ * <p> Для создание конфигурации используйте {@link DiskUsageOptions#builder()}.
+ *
  * @see ru.nsu.sidey383.lab1.options.FileTreeOptions
  * @see ru.nsu.sidey383.lab1.options.FilesPrintOptions
- * **/
+ */
 public class DiskUsageOptions implements FileTreeOptions, FilesPrintOptions {
 
     private final boolean followLinks;
@@ -24,10 +25,11 @@ public class DiskUsageOptions implements FileTreeOptions, FilesPrintOptions {
 
     private final SizeSuffix sizeSuffix;
 
-    /*
-    * CR: Too much construction parameters length (> 120). Use line breaks.
-    * */
-    private DiskUsageOptions(boolean followLinks, int maxDepth, int fileInDirLimit, @NotNull Path filePath, @NotNull SizeSuffix sizeSuffix) {
+    private DiskUsageOptions(boolean followLinks,
+                             int maxDepth,
+                             int fileInDirLimit,
+                             @NotNull Path filePath,
+                             @NotNull SizeSuffix sizeSuffix) {
         this.followLinks = followLinks;
         this.maxDepth = maxDepth;
         this.fileInDirLimit = fileInDirLimit;

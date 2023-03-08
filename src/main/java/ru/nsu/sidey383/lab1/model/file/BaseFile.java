@@ -4,8 +4,8 @@ import org.jetbrains.annotations.Nullable;
 import ru.nsu.sidey383.lab1.model.file.lore.FileLore;
 
 /**
- * Базовая реализация {@link File}
- * **/
+ * Базовая реализация {@link File}.
+ */
 public class BaseFile implements File {
 
     private final FileLore fileLore;

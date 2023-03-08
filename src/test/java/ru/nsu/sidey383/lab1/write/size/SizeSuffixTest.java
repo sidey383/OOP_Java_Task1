@@ -11,7 +11,7 @@ public class SizeSuffixTest {
     private record SuffixTestData(SizeSuffix suffix, Long val, String result) {
 
         public void test() {
-            assertEquals(result, suffix.getSuffix(val), "Wrong size string by object " + suffix);
+            assertEquals(result, suffix.getValue(val), "Wrong size string by object " + suffix);
         }
 
     }
