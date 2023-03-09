@@ -24,6 +24,7 @@ public class FileTreeStringFactory {
         this.sizeSuffix = options.getByteSizeSuffix().getByteSuffix();
     }
 
+    // CR: "FileTreeStringFactory}" in 30 line end. It's a typo?
     /**
      * Читает все файлы в файловом дереве и первращает его в строковое представление.
      * <p> Применяет переданную конфигурацию {@link  FileTreeStringFactory#FileTreeStringFactory(FilesPrintOptions)}  FileTreeStringFactory}
