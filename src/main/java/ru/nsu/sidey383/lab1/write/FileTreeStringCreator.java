@@ -10,7 +10,7 @@ import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Stack;
 
-public class FileTreeStringFactory {
+public class FileTreeStringCreator {
 
     private final int maxDepth;
 
@@ -18,16 +18,15 @@ public class FileTreeStringFactory {
 
     private final SizeSuffix sizeSuffix;
 
-    public FileTreeStringFactory(FilesPrintOptions options) {
+    public FileTreeStringCreator(FilesPrintOptions options) {
         this.maxDepth = options.getMaxDepth();
         this.fileInDirLimit = options.getFileInDirLimit();
         this.sizeSuffix = options.getByteSizeSuffix().getByteSuffix();
     }
 
-    // CR: "FileTreeStringFactory}" in 30 line end. It's a typo?
     /**
      * Читает все файлы в файловом дереве и первращает его в строковое представление.
-     * <p> Применяет переданную конфигурацию {@link  FileTreeStringFactory#FileTreeStringFactory(FilesPrintOptions)}  FileTreeStringFactory}
+     * <p> Применяет переданную конфигурацию {@link  FileTreeStringCreator#FileTreeStringCreator(FilesPrintOptions)}
      * <p> Выводит все файлы в директории в порядке уменьшения размера.
      * @return новый {@link StringBuilder} содержащий в себе строкове предсталение дерева.
      */

@@ -3,7 +3,7 @@ package ru.nsu.sidey383.lab1;
 import ru.nsu.sidey383.lab1.exception.OptionReadException;
 import ru.nsu.sidey383.lab1.model.file.exception.PathException;
 import ru.nsu.sidey383.lab1.options.DiskUsageOptions;
-import ru.nsu.sidey383.lab1.write.FileTreeStringFactory;
+import ru.nsu.sidey383.lab1.write.FileTreeStringCreator;
 import ru.nsu.sidey383.lab1.write.size.SizeSuffixIEC;
 import ru.nsu.sidey383.lab1.write.size.SizeSuffixISU;
 
@@ -41,7 +41,7 @@ public class Main {
         if (fileTree.hasErrors())
             for (PathException error : fileTree.getErrors())
                 System.err.println(error.toUserMessage());
-        FileTreeStringFactory printer = new FileTreeStringFactory(options);
+        FileTreeStringCreator printer = new FileTreeStringCreator(options);
         System.out.println(printer.createString(fileTree.getBaseFile()));
     }
 
