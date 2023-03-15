@@ -1,6 +1,11 @@
 package ru.nsu.sidey383.lab1;
 
-import ru.nsu.sidey383.lab1.model.*;
+import ru.nsu.sidey383.lab1.exception.OptionReadException;
+import ru.nsu.sidey383.lab1.model.file.exception.PathException;
+import ru.nsu.sidey383.lab1.options.DiskUsageOptions;
+import ru.nsu.sidey383.lab1.write.FileTreeStringCreator;
+import ru.nsu.sidey383.lab1.write.size.SizeSuffixIEC;
+import ru.nsu.sidey383.lab1.write.size.SizeSuffixISU;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -11,49 +16,126 @@ public class Main {
     private Main() {}
 
     public static void main(String[] args) {
-        if (args.length < 1) {
+        if (args.length > 0 && (args[0].equals("-h") || args[0].equals("-help"))) {
             System.out.println(usage());
             return;
         }
-        Path path = Path.of(args[0]);
-        if (!Files.exists(path)) {
-            System.out.println(usage());
-            return;
-        }
-        FileTree fileTree = new FileTree(path);
+        DiskUsageOptions options;
         try {
-            fileTree.initTree();
-        } catch (IOException e) {
-            e.printStackTrace();
+            options = readOptions(args);
+        } catch (OptionReadException e) {
+            System.out.println(e.getMessage());
+            System.out.println(usage());
+            return;
         }
-        StringBuilder builder = new StringBuilder();
-        appendFilesString(builder, fileTree.getBaseFile(), 0);
-        System.out.println(builder);
-
+        FileTree fileTree = new FileTree(options);
+        try {
+            fileTree.calculateTree();
+        } catch (PathException e) {
+            System.err.println(e.toUserMessage());
+            return;
+        } catch (IOException e) {
+            System.err.println("File tree build error");
+            return;
+        }
+        if (fileTree.hasErrors())
+            for (PathException error : fileTree.getErrors())
+                System.err.println(error.toUserMessage());
+        FileTreeStringCreator printer = new FileTreeStringCreator(options);
+        System.out.println(printer.createString(fileTree.getBaseFile()));
     }
 
-    private static void appendFilesString(StringBuilder builder, File file, int depth) {
-        if (file == null) return;
-        builder.append(" ".repeat(depth));
-        switch (file) {
-            case DirectoryFile directoryFile -> {
-                builder.append(directoryFile).append("\n");
-                directoryFile.getFilesStream().forEach(f -> appendFilesString(builder, f, depth + 1));
+    private  static DiskUsageOptions readOptions(String[] args) throws OptionReadException {
+        final var builder = DiskUsageOptions.builder();
+        for (int i = 0; i < args.length; i++) {
+            switch (args[i]) {
+                case "--depth" -> {
+                    if (++i < args.length) {
+                        Integer n = parsePositiveInt(args[i]);
+                        if (n == null)
+                            throw new OptionReadException(getDepthError());
+                        builder.withMaxDepth(n);
+                    } else {
+                        throw new OptionReadException(getDepthError());
+                    }
+                }
+                case "-L" -> builder.withFollowLinks(true);
+                case "--size-format" -> {
+                    if (++i < args.length) {
+                        switch (args[i]) {
+                            case "IEC" -> builder.withSizeSuffix(SizeSuffixIEC.BYTE);
+                            case "ISU" -> builder.withSizeSuffix(SizeSuffixISU.BYTE);
+                            default -> throw new OptionReadException(getSizeFormatError());
+                        }
+                    } else {
+                        throw new OptionReadException(getSizeFormatError());
+                    }
+                }
+                case "--limit" -> {
+                    if (++i < args.length) {
+                        Integer n = parsePositiveInt(args[i]);
+                        if (n == null)
+                            throw new OptionReadException(getLimitError());
+                        builder.withFileInDirLimit(n);
+                    } else {
+                        throw new OptionReadException(getLimitError());
+                    }
+                }
+                default -> {
+                    Path path = Path.of(args[i]);
+                    if (!Files.exists(path))
+                        throw new OptionReadException(getFileError());
+                    builder.withFilePath(path);
+                }
             }
-            case SymLinkFile symLinkFile -> {
-                builder.append(symLinkFile).append("\n");
-                symLinkFile.getFilesStream().forEach(f -> appendFilesString(builder, f, depth + 1));
+        }
+        return builder.build();
+    }
+
+    private static Integer parsePositiveInt(String arg) {
+        try {
+            int n = Integer.parseInt(arg);
+            if (n > 0) {
+                return n;
+            } else {
+                System.out.println(usage());
+                return null;
             }
-            default ->  {
-                builder.append(file).append("\n");
-            }
+        } catch (NumberFormatException e) {
+            System.out.println(usage());
+            return null;
         }
     }
 
     private static String usage() {
         return """
-                jdu <path to file>
+                jdu [options] <path to file>
+                    --depth n
+                        depth of recursion
+                    -L
+                        check symlink
+                    --limit n
+                        show the n heaviest files and/or directories
+                    --size-format [IEC | ISU]
+                        file size format
                 """;
     }
+
+    private static String getDepthError() {
+        return "The depth must be an integer greater than zero";
+    }
+
+    private static String getSizeFormatError() {
+        return "Size format can take IEC or ISU values";
+    }
+
+    private static String getLimitError() {
+        return "The limit must be an integer greater than zero";
+    }
+
+    private static String getFileError() {
+        return "The file must exist";
+    }
+
 
 }

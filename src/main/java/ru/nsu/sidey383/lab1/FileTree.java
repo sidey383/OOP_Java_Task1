@@ -2,99 +2,127 @@ package ru.nsu.sidey383.lab1;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ru.nsu.sidey383.lab1.model.*;
+import ru.nsu.sidey383.lab1.model.file.DirectoryFile;
+import ru.nsu.sidey383.lab1.model.file.File;
+import ru.nsu.sidey383.lab1.model.file.exception.PathException;
+import ru.nsu.sidey383.lab1.options.FileTreeOptions;
+import ru.nsu.sidey383.lab1.walker.FileVisitor;
+import ru.nsu.sidey383.lab1.walker.NextAction;
+import ru.nsu.sidey383.lab1.walker.SystemFileWalker;
 
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 
 public class FileTree {
 
-    private Map<Path, DirectoryFile> directories = new HashMap<>();
-    private Map<Path, SymLinkFile> symLinks = new HashMap<>();
+    private final Path basePath;
 
-    private Path basePath;
+    private final boolean followLinks;
 
-    private File baseFile;
+    private SystemFileWalker walker = null;
 
-    public FileTree(Path path) {
-        this.basePath = path.toAbsolutePath();
+    private List<PathException> errors;
+
+    public FileTree(FileTreeOptions options) {
+        this.basePath = options.getFilePath();
+        this.followLinks = options.followLink();
     }
 
+    public void calculateTree() throws IOException, PathException {
+        errors = new ArrayList<>();
+        walker = null;
+        walker = SystemFileWalker.walkFiles(basePath, new TreeVisitor());
+        errors.addAll(walker.getSuppressedExceptions());
+    }
+
+    /**
+     * Возвращает null если метод {@link FileTree#calculateTree()} не был вызван или выкинул исключение.
+     *
+     * @return корневой файл дерева.
+     */
     @Nullable
     public File getBaseFile() {
-        return baseFile;
+        return walker == null ? null : walker.getRootFile();
     }
 
-    public void initTree() throws IOException {
-        switch (FileType.getFileType(basePath)) {
-            case DIRECTORY -> {
-                baseFile = new DirectoryFile(basePath);
-                directories.put(basePath, (DirectoryFile) baseFile);
-                Files.walkFileTree(basePath, new Visitor());
-            }
-            case REGULAR -> baseFile = new RegularFile(basePath);
-            case SYM_LINK -> baseFile = new SymLinkFile(basePath);
-            default -> baseFile = new OtherFile(basePath);
-        }
+    /**
+     * @return все {@link PathException}, созданные и подавленные при вызове {@link SystemFileWalker#walkFiles(Path, FileVisitor)}.
+     */
+    public List<PathException> getErrors() {
+        return List.copyOf(errors);
     }
 
-    private class Visitor implements FileVisitor<Path> {
-
-        private Visitor() {}
-
-        private void addToParent(@NotNull File f) {
-            Path parent = f.getPath().getParent();
-            if (parent != null && directories.containsKey(parent)) {
-                directories.get(parent).addChild(f);
-            }
-        }
-
-        @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-            dir = dir.toAbsolutePath();
-            DirectoryFile file = new DirectoryFile(dir);
-            if (!baseFile.equals(file))
-                directories.put(dir, file);
-            return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
-            path = path.toAbsolutePath();
-            File file = null;
-            if (attrs.isSymbolicLink()) {
-                file = new SymLinkFile(path);
-                symLinks.put(path, (SymLinkFile) file);
-            }
-            if (attrs.isRegularFile()) {
-                file = new RegularFile(path);
-            }
-            if (file == null) {
-                file = new OtherFile(path);
-            }
-            addToParent(file);
-            return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-            System.out.println("visitFileFailed: " + file.toString() + (exc != null ? exc.getMessage() : ""));
-            return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-            DirectoryFile file = directories.get(dir);
-            if (file != null) {
-                addToParent(file);
-            }
-            return FileVisitResult.CONTINUE;
-        }
+    /**
+     * Проверяет {@link FileTree#getErrors()} на пустой список.
+     */
+    public boolean hasErrors() {
+        return !errors.isEmpty();
     }
+
+    private class TreeVisitor implements FileVisitor {
+
+        private final HashSet<File> passedLinks = new HashSet<>();
+
+        private void addChildToParent(File f) {
+            DirectoryFile parent = f.getParent();
+            if (parent != null)
+                parent.addChild(f);
+        }
+
+        /**
+         * Синхронизует отношения файлов потомок-родитель.
+         */
+        @Override
+        public void visitFile(File file) {
+            addChildToParent(file);
+        }
+
+        @Override
+        public NextAction preVisitDirectory(DirectoryFile directory) {
+            if (!directory.getFileType().isLink()) {
+                return NextAction.CONTINUE;
+            }
+
+            if (!followLinks) {
+                addChildToParent(directory);
+                return NextAction.STOP;
+            }
+
+            if (!passedLinks.contains(directory)) {
+                passedLinks.add(directory);
+                return NextAction.CONTINUE;
+            }
+
+            for (File f : passedLinks) {
+                if (directory.equals(f)) {
+                    DirectoryFile parent = directory.getParent();
+                    if (parent != null)
+                        parent.addChild(f);
+                    break;
+                }
+            }
+
+            return NextAction.STOP;
+        }
+
+        @Override
+        public void postVisitDirectory(DirectoryFile directory) {
+            addChildToParent(directory);
+        }
+
+        /**
+         * Собирает все ошибки.
+         *
+         * @see FileTree#getErrors()
+         */
+        @Override
+        public void pathVisitError(@Nullable Path path, @NotNull PathException e) {
+            errors.add(e);
+        }
+
+    }
+
 }
