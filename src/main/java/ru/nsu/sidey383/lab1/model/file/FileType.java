@@ -9,6 +9,7 @@ public enum FileType {
     UNDEFINED(false, false),
     DIRECTORY_LINK(true, true),
     REGULAR_FILE_LINK(true, false),
+    // CR: merge similar cases
     OTHER_LINK(true, false),
     UNDEFINED_LINK(true, false);
 

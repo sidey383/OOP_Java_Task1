@@ -8,6 +8,7 @@ import ru.nsu.sidey383.lab1.model.file.exception.PathException;
 
 import java.nio.file.Path;
 
+// CR: rename
 public interface FileVisitor {
 
     /**

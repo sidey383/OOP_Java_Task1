@@ -6,10 +6,9 @@ import ru.nsu.sidey383.lab1.model.file.lore.FileLore;
 /**
  * Базовая реализация {@link File}.
  */
-public class BaseFile implements File {
+public abstract class BaseFile implements File {
 
     private final FileLore fileLore;
-
 
     protected DirectoryFile parent;
 

@@ -33,6 +33,7 @@ public class FileTree {
 
     public void calculateTree() throws IOException, PathException {
         errors = new ArrayList<>();
+        // CR: comment
         walker = null;
         walker = SystemFileWalker.walkFiles(basePath, new TreeVisitor());
         errors.addAll(walker.getSuppressedExceptions());
@@ -64,7 +65,7 @@ public class FileTree {
 
     private class TreeVisitor implements FileVisitor {
 
-        private final HashSet<File> passedLinks = new HashSet<>();
+        private final HashSet<File> visitedLinks = new HashSet<>();
 
         private void addChildToParent(File f) {
             DirectoryFile parent = f.getParent();
@@ -91,16 +92,16 @@ public class FileTree {
                 return NextAction.STOP;
             }
 
-            if (!passedLinks.contains(directory)) {
-                passedLinks.add(directory);
+            if (visitedLinks.add(directory)) {
                 return NextAction.CONTINUE;
             }
 
-            for (File f : passedLinks) {
-                if (directory.equals(f)) {
+            // CR: ascii
+            for (File createdLink : visitedLinks) {
+                if (directory.equals(createdLink)) {
                     DirectoryFile parent = directory.getParent();
                     if (parent != null)
-                        parent.addChild(f);
+                        parent.addChild(createdLink);
                     break;
                 }
             }

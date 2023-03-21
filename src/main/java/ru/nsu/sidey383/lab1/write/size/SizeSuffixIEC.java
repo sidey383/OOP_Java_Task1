@@ -6,7 +6,10 @@ import org.jetbrains.annotations.Nullable;
 import java.text.DecimalFormat;
 
 public enum SizeSuffixIEC implements DefaultSizeSuffix {
-    GIGABYTE("GiB", null, 0, false), MEGABYTE("MiB",GIGABYTE, 1024, false), KILOBYTE("KiB", MEGABYTE, 1024, false), BYTE("Byte", KILOBYTE, 1024, true);
+    GIGABYTE("GiB", null, 0, false),
+    MEGABYTE("MiB",GIGABYTE, 1024, false),
+    KILOBYTE("KiB", MEGABYTE, 1024, false),
+    BYTE("Byte", KILOBYTE, 1024, true);
 
     private static final DecimalFormat decimalFormat = new DecimalFormat("0.00");
 

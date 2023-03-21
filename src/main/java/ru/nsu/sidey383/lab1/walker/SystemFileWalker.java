@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
+// CR: rename
 public class SystemFileWalker {
 
     private final FileVisitor visitor;
@@ -60,7 +61,7 @@ public class SystemFileWalker {
     private void walk() throws IOException {
         exceptionList = new ArrayList<>();
         if (rootFile instanceof DirectoryFile rootDir) {
-            ArrayDeque<DirectoryNode> queue = new ArrayDeque<>();
+            Deque<DirectoryNode> queue = new ArrayDeque<>();
             visitor.preVisitDirectory(rootDir);
             try {
                 initQueue(queue, rootDir);
@@ -84,7 +85,7 @@ public class SystemFileWalker {
         }
     }
 
-    private void visitFile(Path path, ArrayDeque<DirectoryNode> queue, DirectoryFile parent) throws IOException {
+    private void visitFile(Path path, Deque<DirectoryNode> queue, DirectoryFile parent) throws IOException {
         try {
             File file = File.readFile(path);
             file.setParent(parent);
@@ -100,7 +101,7 @@ public class SystemFileWalker {
         }
     }
 
-    private void initQueue(ArrayDeque<DirectoryNode> queue, DirectoryFile rootDir) {
+    private void initQueue(Deque<DirectoryNode> queue, DirectoryFile rootDir) {
         try {
             queue.add(new DirectoryNode(rootDir));
         } catch (PathException e) {

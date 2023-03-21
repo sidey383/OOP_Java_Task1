@@ -71,6 +71,7 @@ public interface FileLore {
             } else {
                 return new DefaultFileLore(originalType, originalPath, originalSize, originalPath, originalSize);
             }
+            // CR: merge cases (if messages are convenient)?
         } catch (SecurityException e) {
             throw new PathSecurityException(path, e);
         } catch (UnsupportedOperationException e) {

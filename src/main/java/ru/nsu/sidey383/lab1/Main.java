@@ -24,6 +24,7 @@ public class Main {
         try {
             options = readOptions(args);
         } catch (OptionReadException e) {
+            // CR: System.err
             System.out.println(e.getMessage());
             System.out.println(usage());
             return;
@@ -45,6 +46,7 @@ public class Main {
         System.out.println(printer.createString(fileTree.getBaseFile()));
     }
 
+    // CR: move to separate class
     private  static DiskUsageOptions readOptions(String[] args) throws OptionReadException {
         final var builder = DiskUsageOptions.builder();
         for (int i = 0; i < args.length; i++) {
@@ -52,6 +54,7 @@ public class Main {
                 case "--depth" -> {
                     if (++i < args.length) {
                         Integer n = parsePositiveInt(args[i]);
+                        // CR: simplify handling
                         if (n == null)
                             throw new OptionReadException(getDepthError());
                         builder.withMaxDepth(n);

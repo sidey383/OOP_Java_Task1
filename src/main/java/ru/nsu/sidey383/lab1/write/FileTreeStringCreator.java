@@ -30,6 +30,7 @@ public class FileTreeStringCreator {
      * <p> Выводит все файлы в директории в порядке уменьшения размера.
      * @return новый {@link StringBuilder} содержащий в себе строкове предсталение дерева.
      */
+    // CR: return string builder
     public StringBuilder createString(File root) {
         Stack<Iterator<File>> dirStack = new Stack<>();
         File now = root;
