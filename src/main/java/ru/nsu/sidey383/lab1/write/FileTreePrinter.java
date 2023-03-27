@@ -1,16 +1,18 @@
 package ru.nsu.sidey383.lab1.write;
 
 import ru.nsu.sidey383.lab1.model.file.FileType;
-import ru.nsu.sidey383.lab1.model.file.DirectoryFile;
+import ru.nsu.sidey383.lab1.model.file.LinkFile;
+import ru.nsu.sidey383.lab1.model.file.ParentFile;
 import ru.nsu.sidey383.lab1.model.file.File;
 import ru.nsu.sidey383.lab1.options.FilesPrintOptions;
 import ru.nsu.sidey383.lab1.write.size.SizeSuffix;
 
+import java.io.PrintStream;
 import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Stack;
 
-public class FileTreeStringCreator {
+public class FileTreePrinter {
 
     private final int maxDepth;
 
@@ -18,26 +20,24 @@ public class FileTreeStringCreator {
 
     private final SizeSuffix sizeSuffix;
 
-    public FileTreeStringCreator(FilesPrintOptions options) {
+    public FileTreePrinter(FilesPrintOptions options) {
         this.maxDepth = options.getMaxDepth();
         this.fileInDirLimit = options.getFileInDirLimit();
         this.sizeSuffix = options.getByteSizeSuffix().getByteSuffix();
     }
 
     /**
-     * Читает все файлы в файловом дереве и первращает его в строковое представление.
-     * <p> Применяет переданную конфигурацию {@link  FileTreeStringCreator#FileTreeStringCreator(FilesPrintOptions)}
+     * Читает все файлы в файловом дереве и выводит в поток.
+     * <p> Применяет переданную конфигурацию {@link  FileTreePrinter#FileTreePrinter(FilesPrintOptions)}
      * <p> Выводит все файлы в директории в порядке уменьшения размера.
-     * @return новый {@link StringBuilder} содержащий в себе строкове предсталение дерева.
      */
-    // CR: return string builder
-    public StringBuilder createString(File root) {
+    public void printTree(PrintStream stream, File root) {
         Stack<Iterator<File>> dirStack = new Stack<>();
         File now = root;
-        StringBuilder builder = new StringBuilder();
         do {
-            builder.append("  ".repeat(dirStack.size())).append(prettyFileString(now));
-            if (now instanceof DirectoryFile dir && dirStack.size() < maxDepth) {
+            stream.print("  ".repeat(dirStack.size()));
+            stream.println(prettyFileString(now));
+            if (now instanceof ParentFile dir && dirStack.size() < maxDepth) {
                 dirStack.add(
                         dir.getChildren().stream()
                                 .sorted((f1, f2) -> (int) Math.signum(f2.getSize() - f1.getSize()))
@@ -54,10 +54,7 @@ public class FileTreeStringCreator {
                 }
                 dirStack.pop();
             }
-            if (now != null)
-                builder.append("\n");
         } while (now != null);
-        return builder;
     }
 
     /**
@@ -71,16 +68,16 @@ public class FileTreeStringCreator {
             builder.append("/");
         }
 
-        Path fileName = file.getOriginalPath().getFileName();
+        Path fileName = file.getPath().getFileName();
         // getFileName() will return null for root of file system, check this
         if (fileName == null) {
-            builder.append(file.getOriginalPath()).append(" ");
+            builder.append(file.getPath()).append(" ");
         } else {
             builder.append(fileName).append(" ");
         }
 
-        if (type.isLink()) {
-            builder.append("[link ").append(file.getResolvedPath()).append("]");
+        if (file instanceof LinkFile<?> linkFile) {
+            builder.append("[link ").append(linkFile.getLinkedFile().getPath()).append("]");
         } else if (type == FileType.OTHER) {
             builder.append("[unknown type]");
         } else {

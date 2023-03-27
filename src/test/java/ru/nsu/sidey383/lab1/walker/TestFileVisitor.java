@@ -2,9 +2,9 @@ package ru.nsu.sidey383.lab1.walker;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ru.nsu.sidey383.lab1.model.file.DirectoryFile;
+import ru.nsu.sidey383.lab1.model.file.ParentFile;
 import ru.nsu.sidey383.lab1.model.file.File;
-import ru.nsu.sidey383.lab1.model.file.exception.PathException;
+import ru.nsu.sidey383.lab1.model.file.exception.DUPathException;
 
 import java.nio.file.Path;
 import java.util.Collection;
@@ -13,15 +13,15 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestFileVisitor implements FileVisitor {
+public class TestFileVisitor implements DUFileVisitor {
 
     private final Set<File> files;
 
-    private final Set<DirectoryFile> preVisitDirs;
+    private final Set<ParentFile> preVisitDirs;
 
-    private final Set<DirectoryFile> postVisitDirs;
+    private final Set<ParentFile> postVisitDirs;
 
-    public TestFileVisitor(Collection<File> files, Collection<DirectoryFile> directories) {
+    public TestFileVisitor(Collection<File> files, Collection<ParentFile> directories) {
         this.files = new HashSet<>(files);
         this.preVisitDirs = new HashSet<>(directories);
         this.postVisitDirs = new HashSet<>(directories);
@@ -44,20 +44,20 @@ public class TestFileVisitor implements FileVisitor {
     }
 
     @Override
-    public NextAction preVisitDirectory(DirectoryFile directory) {
+    public DUAction preVisitParentFile(ParentFile directory) {
         if (directory.getFileType().isLink())
-            return NextAction.STOP;
+            return DUAction.STOP;
         assertTrue(preVisitDirs.remove(directory), directory + " not expected in preVisitDirectory");
-        return NextAction.CONTINUE;
+        return DUAction.CONTINUE;
     }
 
     @Override
-    public void postVisitDirectory(DirectoryFile directory) {
+    public void postVisitDirectory(ParentFile directory) {
         assertTrue(postVisitDirs.remove(directory), directory + " not expected in postVisitDirectory");
     }
 
     @Override
-    public void pathVisitError(@Nullable Path path, @NotNull PathException e) {
+    public void pathVisitError(@Nullable Path path, @NotNull DUPathException e) {
         assertDoesNotThrow(() -> {
             throw e;
         }, "call pathVisitError for correct paths");

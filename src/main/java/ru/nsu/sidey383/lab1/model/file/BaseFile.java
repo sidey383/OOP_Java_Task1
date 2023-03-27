@@ -1,56 +1,63 @@
 package ru.nsu.sidey383.lab1.model.file;
 
 import org.jetbrains.annotations.Nullable;
-import ru.nsu.sidey383.lab1.model.file.lore.FileLore;
+
+import java.nio.file.Path;
 
 /**
  * Базовая реализация {@link File}.
  */
 public abstract class BaseFile implements File {
 
-    private final FileLore fileLore;
+    protected ParentFile parent;
 
-    protected DirectoryFile parent;
+    protected Path path;
 
-    BaseFile(FileLore fileLore) {
-        this.fileLore = fileLore;
+    protected long size;
+
+    protected BaseFile(long size, Path path) {
+        this.parent = null;
+        this.size = size;
+        this.path = path;
     }
 
-    public DirectoryFile getParent() {
+    public ParentFile getParent() {
         return parent;
     }
 
     @Nullable
-    public DirectoryFile setParent(DirectoryFile parent) {
-        DirectoryFile p = this.parent;
+    public ParentFile setParent(ParentFile parent) {
+        ParentFile p = this.parent;
         this.parent = parent;
         return p;
     }
 
-    public FileLore getFileLore() {
-        return fileLore;
-    }
-
     @Override
     public long getSize() {
-        return getResolvedSize();
+        return size;
     }
 
     @Override
     public boolean equals(Object obj) {
-        return (obj instanceof BaseFile file) && file.fileLore.equals(this.fileLore);
+        return (obj instanceof File file) && getPath().equals(file.getPath());
     }
 
     @Override
     public String toString() {
-        return "BaseFile{" +
-                "fileLore=" + fileLore +
-                ", parent=" + (parent == null ? null : parent.getOriginalPath()) +
+        return this.getClass().getSimpleName() + "{" +
+                "size=" + size +
+                ", path= " + path +
+                ", parent=" + (parent == null ? null : parent.getPath()) +
                 '}';
     }
 
     @Override
+    public Path getPath() {
+        return path;
+    }
+
+    @Override
     public int hashCode() {
-        return fileLore.hashCode();
+        return path.hashCode();
     }
 }

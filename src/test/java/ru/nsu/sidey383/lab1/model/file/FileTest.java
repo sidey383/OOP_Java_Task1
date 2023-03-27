@@ -4,9 +4,7 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import ru.nsu.sidey383.lab1.generator.SimpleFileSystemGenerator;
-import ru.nsu.sidey383.lab1.model.file.exception.PathException;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -21,7 +19,7 @@ public class FileTest {
     @Test
     @Order(1)
     @DisplayName("Base check File#equals()")
-    void simpleEqualsTest() throws IOException, PathException {
+    void simpleEqualsTest() {
 
         List<Path> files = fileSystem.getAllPaths();
 
@@ -40,7 +38,7 @@ public class FileTest {
     @Test
     @Order(2)
     @DisplayName("Check File#equals() by different path")
-    void differentPathEqualsTest() throws IOException, PathException {
+    void differentPathEqualsTest() {
 
         List<List<Path>> equalsPathLists = fileSystem.getEqualsPathsLists();
 
@@ -61,20 +59,21 @@ public class FileTest {
 
     }
 
-    private void checkFileEquals(Path p1, Path p2) throws IOException, PathException {
+    private void checkFileEquals(Path p1, Path p2) {
         File f1 = File.readFile(p1);
         File f2 = File.readFile(p2);
-        assertAll("Compare files from " + p1 + " and " + p2 + ". Except equals.",
-                () -> assertEquals(f1, f2, "file1.equals(file2) return false"),
-                () -> assertEquals(f1.hashCode(), f2.hashCode(), "file1.hashCode() == file2.hashCode() return false"),
-                () -> assertEquals(f1.getFileLore(), f2.getFileLore(), "file1.getFileLore().equals(file2.getFileLore()) return false"));
+        assertEquals(f1, f2,
+                "Compare files\n " +
+                p1 + ": " + f1.toString() + "\n" +
+                p2 + ": " + f2.toString() + "\n");
     }
 
-    private void checkFileNotEquals(Path p1, Path p2) throws IOException, PathException {
+    private void checkFileNotEquals(Path p1, Path p2) {
         File f1 = File.readFile(p1);
         File f2 = File.readFile(p2);
-        assertAll("Compare files from " + p1 + " and " + p2 + ". Expect not equals.z",
-                () -> assertNotEquals(f1, f2, "file1.equals(file2) return true"),
-                () -> assertNotEquals(f1.getFileLore(), f2.getFileLore(), "file1.getFileLore().equals(file2.getFileLore()) return true"));
+        assertNotEquals(f1, f2,
+                "Compare files\n " +
+                        p1 + ": " + f1.toString() + "\n" +
+                        p2 + ": " + f2.toString() + "\n");
     }
 }

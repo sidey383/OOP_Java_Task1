@@ -5,13 +5,10 @@ import java.nio.file.attribute.BasicFileAttributes;
 public enum FileType {
     DIRECTORY(false, true),
     REGULAR_FILE(false, false),
-    OTHER(false, false),
-    UNDEFINED(false, false),
     DIRECTORY_LINK(true, true),
     REGULAR_FILE_LINK(true, false),
-    // CR: merge similar cases
-    OTHER_LINK(true, false),
-    UNDEFINED_LINK(true, false);
+    OTHER(false, false),
+    OTHER_LINK(true, false);
 
     private final boolean isLink;
 
@@ -32,7 +29,7 @@ public enum FileType {
 
     /**
      * Возвращает тип файла исходя из состояния {@link BasicFileAttributes}.
-     * <p> Не проверяет куда ведет ссылка. Для всех ссылок возвращает {@link FileType#UNDEFINED_LINK}.
+     * <p> Не проверяет куда ведет ссылка. Для всех ссылок возвращает {@link FileType#OTHER_LINK}.
      */
     public static FileType toSimpleType(BasicFileAttributes attributes) {
         if (attributes.isRegularFile()) {
@@ -45,14 +42,13 @@ public enum FileType {
             return OTHER;
         }
         if (attributes.isSymbolicLink()) {
-            return UNDEFINED_LINK;
+            return OTHER_LINK;
         }
-        return UNDEFINED;
+        return OTHER;
     }
 
     /**
      * Прекращает обычный {@link FileType} в его ссылочный аналог.
-     * <p> сохраняет ссылки и {@link FileType#UNDEFINED}.
      */
     public FileType toLink() {
         return switch (this) {
@@ -73,7 +69,6 @@ public enum FileType {
             case DIRECTORY_LINK -> DIRECTORY;
             case REGULAR_FILE_LINK -> REGULAR_FILE;
             case OTHER_LINK -> OTHER;
-            case UNDEFINED_LINK -> UNDEFINED;
             default -> this;
         };
     }

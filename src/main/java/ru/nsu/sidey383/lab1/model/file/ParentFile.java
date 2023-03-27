@@ -5,8 +5,7 @@ import java.util.Set;
 /**
  * Расширенный файловый интерфейс для работы с дочерними файлами
  * **/
-// CR :rename
-public interface DirectoryFile extends File {
+public interface ParentFile extends File {
 
     /**
      * @return копию множества дочерних файлов

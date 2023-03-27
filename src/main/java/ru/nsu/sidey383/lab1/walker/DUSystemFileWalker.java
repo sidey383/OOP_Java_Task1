@@ -1,10 +1,10 @@
 package ru.nsu.sidey383.lab1.walker;
 
 import org.jetbrains.annotations.NotNull;
-import ru.nsu.sidey383.lab1.model.file.DirectoryFile;
+import ru.nsu.sidey383.lab1.model.file.LinkFile;
+import ru.nsu.sidey383.lab1.model.file.ParentFile;
 import ru.nsu.sidey383.lab1.model.file.File;
-import ru.nsu.sidey383.lab1.model.file.exception.PathException;
-import ru.nsu.sidey383.lab1.model.file.exception.PathFileStreamException;
+import ru.nsu.sidey383.lab1.model.file.exception.DUPathException;
 
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -12,39 +12,42 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
-// CR: rename
-public class SystemFileWalker {
+public class DUSystemFileWalker {
 
-    private final FileVisitor visitor;
+    private final DUFileVisitor visitor;
 
     private final File rootFile;
 
-    private List<PathException> exceptionList;
+    private List<DUPathException> exceptionList;
 
-    private SystemFileWalker(File dirFile, FileVisitor visitor) {
+    private DUSystemFileWalker(File dirFile, DUFileVisitor visitor) {
         this.rootFile = dirFile;
         this.visitor = visitor;
     }
 
     private static class DirectoryNode {
-        private final DirectoryFile file;
+        private final ParentFile file;
 
         private final Iterator<Path> iterator;
 
         private final DirectoryStream<Path> stream;
 
-        public DirectoryNode(@NotNull DirectoryFile file) throws PathFileStreamException {
+        public DirectoryNode(@NotNull ParentFile file) throws DUPathException {
             this.file = file;
             try {
-                this.stream = Files.newDirectoryStream(this.file.getResolvedPath());
+                if (file instanceof LinkFile<?> pfLink && pfLink.getLinkedFile() instanceof ParentFile pf) {
+                    this.stream = Files.newDirectoryStream(pf.getPath());
+                } else {
+                    this.stream = Files.newDirectoryStream(file.getPath());
+                }
             } catch (IOException e) {
-                throw new PathFileStreamException(file.getOriginalPath(), e);
+                throw new DUPathException(file.getPath(), e);
             }
             this.iterator = this.stream.iterator();
         }
 
         @NotNull
-        public DirectoryFile getDir() {
+        public ParentFile getDir() {
             return file;
         }
 
@@ -58,11 +61,11 @@ public class SystemFileWalker {
         }
     }
 
-    private void walk() throws IOException {
+    private void walk() {
         exceptionList = new ArrayList<>();
-        if (rootFile instanceof DirectoryFile rootDir) {
+        if (rootFile instanceof ParentFile rootDir) {
             Deque<DirectoryNode> queue = new ArrayDeque<>();
-            visitor.preVisitDirectory(rootDir);
+            visitor.preVisitParentFile(rootDir);
             try {
                 initQueue(queue, rootDir);
                 while (!queue.isEmpty()) {
@@ -85,27 +88,27 @@ public class SystemFileWalker {
         }
     }
 
-    private void visitFile(Path path, Deque<DirectoryNode> queue, DirectoryFile parent) throws IOException {
+    private void visitFile(Path path, Deque<DirectoryNode> queue, ParentFile parent) {
         try {
             File file = File.readFile(path);
             file.setParent(parent);
-            if (file instanceof DirectoryFile directoryFile) {
-                if (visitor.preVisitDirectory(directoryFile) == NextAction.CONTINUE) {
-                    queue.add(new DirectoryNode(directoryFile));
+            if (file instanceof ParentFile parentFile) {
+                if (visitor.preVisitParentFile(parentFile) == DUAction.CONTINUE) {
+                    queue.add(new DirectoryNode(parentFile));
                 }
             } else {
                 visitor.visitFile(file);
             }
-        } catch (PathException e) {
+        } catch (DUPathException e) {
             visitor.pathVisitError(path, e);
         }
     }
 
-    private void initQueue(Deque<DirectoryNode> queue, DirectoryFile rootDir) {
+    private void initQueue(Deque<DirectoryNode> queue, ParentFile rootDir) {
         try {
             queue.add(new DirectoryNode(rootDir));
-        } catch (PathException e) {
-            visitor.pathVisitError(rootDir.getOriginalPath(), e);
+        } catch (DUPathException e) {
+            visitor.pathVisitError(rootDir.getPath(), e);
         }
     }
 
@@ -113,7 +116,7 @@ public class SystemFileWalker {
         try {
             node.close();
         } catch (IOException e) {
-            exceptionList.add(new PathFileStreamException(node.getDir().getOriginalPath(), e));
+            exceptionList.add(new DUPathException(node.getDir().getPath(), e));
         }
     }
 
@@ -121,7 +124,7 @@ public class SystemFileWalker {
         return rootFile;
     }
 
-    public List<PathException> getSuppressedExceptions() {
+    public List<DUPathException> getSuppressedExceptions() {
         return new ArrayList<>(exceptionList);
     }
 
@@ -132,12 +135,12 @@ public class SystemFileWalker {
      *
      * @return объект, обходивший файлы.
      *
-     * @see SystemFileWalker#getRootFile()
-     * @see SystemFileWalker#getSuppressedExceptions()
+     * @see DUSystemFileWalker#getRootFile()
+     * @see DUSystemFileWalker#getSuppressedExceptions()
      */
-    public static SystemFileWalker walkFiles(Path path, FileVisitor visitor) throws IOException, PathException {
+    public static DUSystemFileWalker walkFiles(Path path, DUFileVisitor visitor) {
         File rootFile = File.readFile(path);
-        SystemFileWalker walker = new SystemFileWalker(rootFile, visitor);
+        DUSystemFileWalker walker = new DUSystemFileWalker(rootFile, visitor);
         walker.walk();
         return walker;
     }

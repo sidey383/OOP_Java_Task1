@@ -1,5 +1,5 @@
 package ru.nsu.sidey383.lab1.walker;
 
-public enum NextAction {
+public enum DUAction {
     CONTINUE, STOP
 }

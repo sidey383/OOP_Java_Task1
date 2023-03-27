@@ -38,8 +38,6 @@ public class SimpleFileSystemGenerator implements BeforeAllCallback, AfterAllCal
 
     private final List<List<Path>> equalsPathsLists = new ArrayList<>();
 
-    private final List<FileWithSize> fileWithSizes = new ArrayList<>();
-
     private Path rootDir;
 
     private final Random random = new Random(5123);
@@ -68,7 +66,6 @@ public class SimpleFileSystemGenerator implements BeforeAllCallback, AfterAllCal
                 for (long j = 0L; j < size; j++) {
                     os.write(random.nextInt());
                 }
-                fileWithSizes.add(new FileWithSize(size, path));
             }
             allPaths.add(path);
         }
@@ -85,7 +82,6 @@ public class SimpleFileSystemGenerator implements BeforeAllCallback, AfterAllCal
                 for (long j = 0L; j < size; j++) {
                     os.write(random.nextInt());
                 }
-                fileWithSizes.add(new FileWithSize(size, path));
             }
             equalsPathsLists.get(0).add(path);
             allPaths.add(path);
@@ -106,10 +102,6 @@ public class SimpleFileSystemGenerator implements BeforeAllCallback, AfterAllCal
 
     public List<List<Path>> getEqualsPathsLists() {
         return equalsPathsLists;
-    }
-
-    public List<FileWithSize> getFileWithSizes() {
-        return fileWithSizes;
     }
 
     public Path getRootDir() {

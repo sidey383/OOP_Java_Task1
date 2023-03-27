@@ -1,21 +1,22 @@
 package ru.nsu.sidey383.lab1.model.file;
 
-import ru.nsu.sidey383.lab1.model.file.exception.PathFileSystemException;
-import ru.nsu.sidey383.lab1.model.file.exception.PathSecurityException;
-import ru.nsu.sidey383.lab1.model.file.exception.PathUnsupportedOperationException;
-import ru.nsu.sidey383.lab1.model.file.exception.PathException;
-import ru.nsu.sidey383.lab1.model.file.lore.FileLore;
+import ru.nsu.sidey383.lab1.model.file.base.DirectoryFile;
+import ru.nsu.sidey383.lab1.model.file.base.OtherFile;
+import ru.nsu.sidey383.lab1.model.file.base.RegularFile;
+import ru.nsu.sidey383.lab1.model.file.base.WrongFile;
+import ru.nsu.sidey383.lab1.model.file.exception.DUPathException;
+import ru.nsu.sidey383.lab1.model.file.link.ExceptionLinkFile;
+import ru.nsu.sidey383.lab1.model.file.link.ParentLinkFile;
+import ru.nsu.sidey383.lab1.model.file.link.SimpleLinkFile;
 
 import java.io.IOException;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 
 /**
  * Базовый инетрфейс файла.
  */
 public interface File {
-
-    FileLore getFileLore();
 
     long getSize();
 
@@ -23,9 +24,9 @@ public interface File {
      * Получить родительский файл.
      * <p> Нет гарантий, что данный файл является потомком возвращаемой директории.
      *
-     * @see DirectoryFile#getChildren()
+     * @see ParentFile#getChildren()
      */
-    DirectoryFile getParent();
+    ParentFile getParent();
 
     /**
      * Изменяет только состоянние данного файла.
@@ -34,45 +35,74 @@ public interface File {
      * @return null или старая родительская директория.
      */
     @SuppressWarnings("UnusedReturnValue")
-    DirectoryFile setParent(DirectoryFile file);
+    ParentFile setParent(ParentFile file);
 
-    default FileType getFileType() {
-        return getFileLore().fileType();
-    }
+    FileType getFileType();
 
-    default Path getOriginalPath() {
-        return getFileLore().originalPath();
-    }
-
-    default Path getResolvedPath() {
-        return getFileLore().resolvedPath();
-    }
-
-    default long getOriginalSize() {
-        return getFileLore().originalSize();
-    }
-
-    default long getResolvedSize() {
-        return getFileLore().resolvedSize();
-    }
+    Path getPath();
 
     /**
      * Фабричный метод для создания {@link File}.
      * <p> Перед созданием объекта разрешает путь до файла, а для ссылок переходит по ссылке с помощью {@link Path#toRealPath(LinkOption...)}.
+     * <p> Все ошибки создания отражаются в созданном файле {@link ExceptionFile}
      *
-     * @throws PathUnsupportedOperationException если невозможно получить атрибуты файла.
-     * @throws PathSecurityException если нет прав на работу с данным файлом.
-     * @throws PathFileSystemException при ошибке файловой системы.
-     * @throws IOException если файл не существует или в случае I/O exception.
-     *
-     * @see FileLore#createFileLore(Path)
+     * @see Path#toRealPath(LinkOption...)
+     * @see Files#readAttributes(Path, Class, LinkOption...)
      */
-    static File readFile(Path path) throws PathException, IOException {
-        FileLore lore = FileLore.createFileLore(path);
-        return switch (lore.fileType()) {
-            case DIRECTORY -> new DefaultDirectoryFile(lore);
-            case DIRECTORY_LINK -> new DefaultLinkDirectoryFile(lore);
-            case REGULAR_FILE, REGULAR_FILE_LINK, OTHER, OTHER_LINK, UNDEFINED, UNDEFINED_LINK  -> new DefaultFile(lore);
+    static File readFile(Path path) {
+        return readFile(path, false);
+    }
+
+    static File readFile(Path path, boolean resolveLink) {
+        LinkOption[] linkOptions = resolveLink ? new LinkOption[0] : new LinkOption[] {LinkOption.NOFOLLOW_LINKS};
+        Path originalPath;
+
+        try {
+            originalPath = path.toRealPath(linkOptions);
+        } catch (NotDirectoryException e1) {
+            try {
+                originalPath = path.toRealPath();
+            } catch (IOException e2) {
+                return new WrongFile(0, path, new DUPathException(path, e2));
+            }
+        } catch (IOException e) {
+            return new WrongFile(0, path, new DUPathException(path, e));
+        }
+
+        BasicFileAttributes originalAttributes;
+
+        try {
+            originalAttributes = Files.readAttributes(originalPath, BasicFileAttributes.class, linkOptions);
+        } catch (IOException e) {
+            return new WrongFile(0, originalPath, new DUPathException(path, e));
+        }
+
+        long originalSize = originalAttributes.size();
+        FileType originalType = FileType.toSimpleType(originalAttributes);
+
+        if (originalSize < 0)
+            originalSize = 0;
+
+        return switch (originalType) {
+            case REGULAR_FILE -> new RegularFile(originalSize, originalPath);
+            case DIRECTORY -> new DirectoryFile(originalSize, originalPath);
+            case OTHER_LINK -> {
+                if (resolveLink) {
+                    yield new WrongFile(originalSize, originalPath, new DUPathException(path, new IllegalStateException("Resoled file has link type")));
+                } else {
+                    File reslovedFile = readFile(originalPath, true);
+                    if (reslovedFile instanceof ParentFile resolvedParent) {
+                        yield  new ParentLinkFile(originalSize, originalPath, resolvedParent);
+                    }
+                    if (reslovedFile instanceof WrongFile resolvedWrongFile) {
+                        yield new ExceptionLinkFile(originalSize, originalPath, resolvedWrongFile);
+                    }
+                    yield new SimpleLinkFile(originalSize, originalPath, readFile(originalPath, true));
+                }
+
+            }
+            case OTHER -> new OtherFile(originalSize, originalPath);
+            default -> new WrongFile(originalSize, originalPath, new DUPathException(path, new IllegalStateException("Incorrect file type")));
         };
     }
 
