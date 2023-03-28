@@ -4,9 +4,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import ru.nsu.sidey383.lab1.generator.SimpleFileSystemGenerator;
-import ru.nsu.sidey383.lab1.model.file.ParentFile;
-import ru.nsu.sidey383.lab1.model.file.File;
-import ru.nsu.sidey383.lab1.model.file.FileType;
+import ru.nsu.sidey383.lab1.model.file.ParentDUFile;
+import ru.nsu.sidey383.lab1.model.file.DUFile;
+import ru.nsu.sidey383.lab1.model.file.DUFileType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,12 +21,12 @@ public class WalkerTest {
     @Test
     @DisplayName("Check all file visiting for simple sile system")
     public void allFileTest() {
-        List<File> files = fileSystem.getAllPaths().stream().map(File::readFile)
-                .filter(f -> !(f instanceof ParentFile))
+        List<DUFile> files = fileSystem.getAllPaths().stream().map(DUFile::readFile)
+                .filter(f -> !(f instanceof ParentDUFile))
                 .toList();
-        List<ParentFile> dirs = fileSystem.getAllPaths().stream().map(File::readFile)
-                .filter(f -> f.getFileType() == FileType.DIRECTORY)
-                .map(f -> (ParentFile) f)
+        List<ParentDUFile> dirs = fileSystem.getAllPaths().stream().map(DUFile::readFile)
+                .filter(f -> f.getFileType() == DUFileType.DIRECTORY)
+                .map(f -> (ParentDUFile) f)
                 .toList();
         TestFileVisitor visitor = new TestFileVisitor(files, dirs);
         DUSystemFileWalker walker = DUSystemFileWalker.walkFiles(fileSystem.getRootDir(), visitor);

@@ -2,7 +2,7 @@ package ru.nsu.sidey383.lab1.model.file;
 
 import java.nio.file.attribute.BasicFileAttributes;
 
-public enum FileType {
+public enum DUFileType {
     DIRECTORY(false, true),
     REGULAR_FILE(false, false),
     DIRECTORY_LINK(true, true),
@@ -14,7 +14,7 @@ public enum FileType {
 
     private final boolean isDirectory;
 
-    FileType(boolean isLink, boolean isDirectory) {
+    DUFileType(boolean isLink, boolean isDirectory) {
         this.isLink = isLink;
         this.isDirectory = isDirectory;
     }
@@ -29,9 +29,9 @@ public enum FileType {
 
     /**
      * Возвращает тип файла исходя из состояния {@link BasicFileAttributes}.
-     * <p> Не проверяет куда ведет ссылка. Для всех ссылок возвращает {@link FileType#OTHER_LINK}.
+     * <p> Не проверяет куда ведет ссылка. Для всех ссылок возвращает {@link DUFileType#OTHER_LINK}.
      */
-    public static FileType toSimpleType(BasicFileAttributes attributes) {
+    public static DUFileType toSimpleType(BasicFileAttributes attributes) {
         if (attributes.isRegularFile()) {
             return REGULAR_FILE;
         }
@@ -48,9 +48,9 @@ public enum FileType {
     }
 
     /**
-     * Прекращает обычный {@link FileType} в его ссылочный аналог.
+     * Прекращает обычный {@link DUFileType} в его ссылочный аналог.
      */
-    public FileType toLink() {
+    public DUFileType toLink() {
         return switch (this) {
             case DIRECTORY -> DIRECTORY_LINK;
             case REGULAR_FILE -> REGULAR_FILE_LINK;
@@ -60,11 +60,11 @@ public enum FileType {
     }
 
     /**
-     * Превращает ссылочный {@link FileType} в обычный вид.
+     * Превращает ссылочный {@link DUFileType} в обычный вид.
      * <p> сохраняет обычные типы.
      */
     @SuppressWarnings("unused")
-    public FileType toReal() {
+    public DUFileType toReal() {
         return switch (this) {
             case DIRECTORY_LINK -> DIRECTORY;
             case REGULAR_FILE_LINK -> REGULAR_FILE;

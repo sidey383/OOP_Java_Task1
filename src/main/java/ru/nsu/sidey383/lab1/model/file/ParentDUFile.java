@@ -5,17 +5,17 @@ import java.util.Set;
 /**
  * Расширенный файловый интерфейс для работы с дочерними файлами
  * **/
-public interface ParentFile extends File {
+public interface ParentDUFile extends DUFile {
 
     /**
      * @return копию множества дочерних файлов
      * **/
-    Set<File> getChildren();
+    Set<DUFile> getChildren();
 
     /**
      * Добавить потомка для данного файла. Игнорирует копии.
-     * <p> Не влияет на состояние передаваемого файла, в частности на {@link File#getParent()}
+     * <p> Не влияет на состояние передаваемого файла, в частности на {@link DUFile#getParent()}
      * **/
-    void addChild(File file);
+    void addChild(DUFile file);
 
 }

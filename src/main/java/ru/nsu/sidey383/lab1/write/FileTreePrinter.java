@@ -1,9 +1,9 @@
 package ru.nsu.sidey383.lab1.write;
 
-import ru.nsu.sidey383.lab1.model.file.FileType;
-import ru.nsu.sidey383.lab1.model.file.LinkFile;
-import ru.nsu.sidey383.lab1.model.file.ParentFile;
-import ru.nsu.sidey383.lab1.model.file.File;
+import ru.nsu.sidey383.lab1.model.file.DUFileType;
+import ru.nsu.sidey383.lab1.model.file.LinkDUFile;
+import ru.nsu.sidey383.lab1.model.file.ParentDUFile;
+import ru.nsu.sidey383.lab1.model.file.DUFile;
 import ru.nsu.sidey383.lab1.options.FilesPrintOptions;
 import ru.nsu.sidey383.lab1.write.size.SizeSuffix;
 
@@ -31,13 +31,13 @@ public class FileTreePrinter {
      * <p> Применяет переданную конфигурацию {@link  FileTreePrinter#FileTreePrinter(FilesPrintOptions)}
      * <p> Выводит все файлы в директории в порядке уменьшения размера.
      */
-    public void printTree(PrintStream stream, File root) {
-        Stack<Iterator<File>> dirStack = new Stack<>();
-        File now = root;
+    public void printTree(PrintStream stream, DUFile root) {
+        Stack<Iterator<DUFile>> dirStack = new Stack<>();
+        DUFile now = root;
         do {
             stream.print("  ".repeat(dirStack.size()));
             stream.println(prettyFileString(now));
-            if (now instanceof ParentFile dir && dirStack.size() < maxDepth) {
+            if (now instanceof ParentDUFile dir && dirStack.size() < maxDepth) {
                 dirStack.add(
                         dir.getChildren().stream()
                                 .sorted((f1, f2) -> (int) Math.signum(f2.getSize() - f1.getSize()))
@@ -47,7 +47,7 @@ public class FileTreePrinter {
             }
             now = null;
             while (!dirStack.isEmpty()) {
-                Iterator<File> iterator = dirStack.peek();
+                Iterator<DUFile> iterator = dirStack.peek();
                 if (iterator.hasNext()) {
                     now = iterator.next();
                     break;
@@ -60,9 +60,9 @@ public class FileTreePrinter {
     /**
      * @return красивое представление файла.
      */
-    public String prettyFileString(File file) {
+    public String prettyFileString(DUFile file) {
         StringBuilder builder = new StringBuilder();
-        FileType type = file.getFileType();
+        DUFileType type = file.getFileType();
 
         if (type.isDirectory()) {
             builder.append("/");
@@ -76,9 +76,9 @@ public class FileTreePrinter {
             builder.append(fileName).append(" ");
         }
 
-        if (file instanceof LinkFile<?> linkFile) {
+        if (file instanceof LinkDUFile<?> linkFile) {
             builder.append("[link ").append(linkFile.getLinkedFile().getPath()).append("]");
-        } else if (type == FileType.OTHER) {
+        } else if (type == DUFileType.OTHER) {
             builder.append("[unknown type]");
         } else {
             builder.append("[").append(sizeSuffix.getValue(file.getSize())).append("]");

@@ -11,7 +11,7 @@ import java.util.List;
 @Order(2)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @TestClassOrder(ClassOrderer.OrderAnnotation.class)
-public class FileTest {
+public class DUFileTest {
 
     @RegisterExtension
     private static final SimpleFileSystemGenerator fileSystem = new SimpleFileSystemGenerator();
@@ -60,8 +60,8 @@ public class FileTest {
     }
 
     private void checkFileEquals(Path p1, Path p2) {
-        File f1 = File.readFile(p1);
-        File f2 = File.readFile(p2);
+        DUFile f1 = DUFile.readFile(p1);
+        DUFile f2 = DUFile.readFile(p2);
         assertEquals(f1, f2,
                 "Compare files\n " +
                 p1 + ": " + f1.toString() + "\n" +
@@ -69,8 +69,8 @@ public class FileTest {
     }
 
     private void checkFileNotEquals(Path p1, Path p2) {
-        File f1 = File.readFile(p1);
-        File f2 = File.readFile(p2);
+        DUFile f1 = DUFile.readFile(p1);
+        DUFile f2 = DUFile.readFile(p2);
         assertNotEquals(f1, f2,
                 "Compare files\n " +
                         p1 + ": " + f1.toString() + "\n" +

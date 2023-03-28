@@ -5,11 +5,11 @@ import ru.nsu.sidey383.lab1.model.file.exception.DUPathException;
 
 import java.nio.file.Path;
 
-public class ExceptionLinkFile extends BaseFile implements LinkFile<ExceptionFile>, ExceptionFile {
+public class ExceptionLinkDUFile extends BaseDUFile implements LinkDUFile<ExceptionDUFile>, ExceptionDUFile {
 
-    private ExceptionFile linkedFile;
+    private ExceptionDUFile linkedFile;
 
-    public ExceptionLinkFile(long size, Path path, ExceptionFile linkedFile) {
+    public ExceptionLinkDUFile(long size, Path path, ExceptionDUFile linkedFile) {
         super(size, path);
         this.linkedFile = linkedFile;
     }
@@ -20,19 +20,19 @@ public class ExceptionLinkFile extends BaseFile implements LinkFile<ExceptionFil
     }
 
     @Override
-    public FileType getFileType() {
-        return FileType.OTHER_LINK;
+    public DUFileType getFileType() {
+        return DUFileType.OTHER_LINK;
     }
 
     @Override
-    public ExceptionFile getLinkedFile() {
+    public ExceptionDUFile getLinkedFile() {
         return linkedFile;
     }
 
     @Override
-    public ExceptionFile updateLinkedFile(File file) {
-        if (file instanceof ExceptionFile ef && linkedFile.equals(ef)) {
-            ExceptionFile old = linkedFile;
+    public ExceptionDUFile updateLinkedFile(DUFile file) {
+        if (file instanceof ExceptionDUFile ef && linkedFile.equals(ef)) {
+            ExceptionDUFile old = linkedFile;
             linkedFile = ef;
             return old;
         } else {

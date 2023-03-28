@@ -2,8 +2,8 @@ package ru.nsu.sidey383.lab1.walker;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ru.nsu.sidey383.lab1.model.file.ParentFile;
-import ru.nsu.sidey383.lab1.model.file.File;
+import ru.nsu.sidey383.lab1.model.file.ParentDUFile;
+import ru.nsu.sidey383.lab1.model.file.DUFile;
 import ru.nsu.sidey383.lab1.model.file.exception.DUPathException;
 
 import java.nio.file.Path;
@@ -15,13 +15,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class TestFileVisitor implements DUFileVisitor {
 
-    private final Set<File> files;
+    private final Set<DUFile> files;
 
-    private final Set<ParentFile> preVisitDirs;
+    private final Set<ParentDUFile> preVisitDirs;
 
-    private final Set<ParentFile> postVisitDirs;
+    private final Set<ParentDUFile> postVisitDirs;
 
-    public TestFileVisitor(Collection<File> files, Collection<ParentFile> directories) {
+    public TestFileVisitor(Collection<DUFile> files, Collection<ParentDUFile> directories) {
         this.files = new HashSet<>(files);
         this.preVisitDirs = new HashSet<>(directories);
         this.postVisitDirs = new HashSet<>(directories);
@@ -39,12 +39,12 @@ public class TestFileVisitor implements DUFileVisitor {
 
 
     @Override
-    public void visitFile(File file) {
+    public void visitFile(DUFile file) {
         assertTrue(files.remove(file), file + " not expected in visitFile");
     }
 
     @Override
-    public DUAction preVisitParentFile(ParentFile directory) {
+    public DUAction preVisitParentFile(ParentDUFile directory) {
         if (directory.getFileType().isLink())
             return DUAction.STOP;
         assertTrue(preVisitDirs.remove(directory), directory + " not expected in preVisitDirectory");
@@ -52,7 +52,7 @@ public class TestFileVisitor implements DUFileVisitor {
     }
 
     @Override
-    public void postVisitDirectory(ParentFile directory) {
+    public void postVisitDirectory(ParentDUFile directory) {
         assertTrue(postVisitDirs.remove(directory), directory + " not expected in postVisitDirectory");
     }
 

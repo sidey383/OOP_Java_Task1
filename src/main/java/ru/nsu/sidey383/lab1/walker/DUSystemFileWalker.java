@@ -1,9 +1,9 @@
 package ru.nsu.sidey383.lab1.walker;
 
 import org.jetbrains.annotations.NotNull;
-import ru.nsu.sidey383.lab1.model.file.LinkFile;
-import ru.nsu.sidey383.lab1.model.file.ParentFile;
-import ru.nsu.sidey383.lab1.model.file.File;
+import ru.nsu.sidey383.lab1.model.file.LinkDUFile;
+import ru.nsu.sidey383.lab1.model.file.ParentDUFile;
+import ru.nsu.sidey383.lab1.model.file.DUFile;
 import ru.nsu.sidey383.lab1.model.file.exception.DUPathException;
 
 import java.io.IOException;
@@ -16,26 +16,26 @@ public class DUSystemFileWalker {
 
     private final DUFileVisitor visitor;
 
-    private final File rootFile;
+    private final DUFile rootFile;
 
     private List<DUPathException> exceptionList;
 
-    private DUSystemFileWalker(File dirFile, DUFileVisitor visitor) {
+    private DUSystemFileWalker(DUFile dirFile, DUFileVisitor visitor) {
         this.rootFile = dirFile;
         this.visitor = visitor;
     }
 
     private static class DirectoryNode {
-        private final ParentFile file;
+        private final ParentDUFile file;
 
         private final Iterator<Path> iterator;
 
         private final DirectoryStream<Path> stream;
 
-        public DirectoryNode(@NotNull ParentFile file) throws DUPathException {
+        public DirectoryNode(@NotNull ParentDUFile file) throws DUPathException {
             this.file = file;
             try {
-                if (file instanceof LinkFile<?> pfLink && pfLink.getLinkedFile() instanceof ParentFile pf) {
+                if (file instanceof LinkDUFile<?> pfLink && pfLink.getLinkedFile() instanceof ParentDUFile pf) {
                     this.stream = Files.newDirectoryStream(pf.getPath());
                 } else {
                     this.stream = Files.newDirectoryStream(file.getPath());
@@ -47,7 +47,7 @@ public class DUSystemFileWalker {
         }
 
         @NotNull
-        public ParentFile getDir() {
+        public ParentDUFile getDir() {
             return file;
         }
 
@@ -63,7 +63,7 @@ public class DUSystemFileWalker {
 
     private void walk() {
         exceptionList = new ArrayList<>();
-        if (rootFile instanceof ParentFile rootDir) {
+        if (rootFile instanceof ParentDUFile rootDir) {
             Deque<DirectoryNode> queue = new ArrayDeque<>();
             visitor.preVisitParentFile(rootDir);
             try {
@@ -88,11 +88,11 @@ public class DUSystemFileWalker {
         }
     }
 
-    private void visitFile(Path path, Deque<DirectoryNode> queue, ParentFile parent) {
+    private void visitFile(Path path, Deque<DirectoryNode> queue, ParentDUFile parent) {
         try {
-            File file = File.readFile(path);
+            DUFile file = DUFile.readFile(path);
             file.setParent(parent);
-            if (file instanceof ParentFile parentFile) {
+            if (file instanceof ParentDUFile parentFile) {
                 if (visitor.preVisitParentFile(parentFile) == DUAction.CONTINUE) {
                     queue.add(new DirectoryNode(parentFile));
                 }
@@ -104,7 +104,7 @@ public class DUSystemFileWalker {
         }
     }
 
-    private void initQueue(Deque<DirectoryNode> queue, ParentFile rootDir) {
+    private void initQueue(Deque<DirectoryNode> queue, ParentDUFile rootDir) {
         try {
             queue.add(new DirectoryNode(rootDir));
         } catch (DUPathException e) {
@@ -120,7 +120,7 @@ public class DUSystemFileWalker {
         }
     }
 
-    public File getRootFile() {
+    public DUFile getRootFile() {
         return rootFile;
     }
 
@@ -139,7 +139,7 @@ public class DUSystemFileWalker {
      * @see DUSystemFileWalker#getSuppressedExceptions()
      */
     public static DUSystemFileWalker walkFiles(Path path, DUFileVisitor visitor) {
-        File rootFile = File.readFile(path);
+        DUFile rootFile = DUFile.readFile(path);
         DUSystemFileWalker walker = new DUSystemFileWalker(rootFile, visitor);
         walker.walk();
         return walker;

@@ -2,10 +2,10 @@ package ru.nsu.sidey383.lab1;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ru.nsu.sidey383.lab1.model.file.LinkFile;
-import ru.nsu.sidey383.lab1.model.file.ParentFile;
-import ru.nsu.sidey383.lab1.model.file.File;
-import ru.nsu.sidey383.lab1.model.file.base.WrongFile;
+import ru.nsu.sidey383.lab1.model.file.LinkDUFile;
+import ru.nsu.sidey383.lab1.model.file.ParentDUFile;
+import ru.nsu.sidey383.lab1.model.file.DUFile;
+import ru.nsu.sidey383.lab1.model.file.base.WrongDUFile;
 import ru.nsu.sidey383.lab1.model.file.exception.DUPathException;
 import ru.nsu.sidey383.lab1.options.FileTreeOptions;
 import ru.nsu.sidey383.lab1.walker.DUFileVisitor;
@@ -50,7 +50,7 @@ public class FileTree {
      * @return корневой файл дерева.
      */
     @Nullable
-    public File getBaseFile() {
+    public DUFile getBaseFile() {
         return walker == null ? null : walker.getRootFile();
     }
 
@@ -70,10 +70,10 @@ public class FileTree {
 
     private class TreeVisitor implements DUFileVisitor {
 
-        private final HashSet<File> visitedFiles = new HashSet<>();
+        private final HashSet<DUFile> visitedFiles = new HashSet<>();
 
-        private void addChildToParent(File f) {
-            ParentFile parent = f.getParent();
+        private void addChildToParent(DUFile f) {
+            ParentDUFile parent = f.getParent();
             if (parent != null)
                 parent.addChild(f);
         }
@@ -84,11 +84,11 @@ public class FileTree {
          * @return true если файл уже был пройдет
          * <p> false если файл ещё не был пройден
          * **/
-        boolean checkOriginFile(File file) {
+        boolean checkOriginFile(DUFile file) {
             if (!visitedFiles.add(file)) {
-                for (File f : visitedFiles) {
+                for (DUFile f : visitedFiles) {
                     if (f.equals(file)) {
-                        ParentFile parent = file.getParent();
+                        ParentDUFile parent = file.getParent();
                         if (parent != null) {
                             parent.addChild(f);
                             f.setParent(parent);
@@ -107,10 +107,10 @@ public class FileTree {
          * @return true если файл уже был пройдет
          * <p> false если файл ещё не был пройден
          * **/
-        boolean checkLinkFile(LinkFile<? extends File> link) {
-            File linkedFile = link.getLinkedFile();
+        boolean checkLinkFile(LinkDUFile<? extends DUFile> link) {
+            DUFile linkedFile = link.getLinkedFile();
             if (!visitedFiles.add(linkedFile)) {
-                for (File f : visitedFiles) {
+                for (DUFile f : visitedFiles) {
                     if (f.equals(linkedFile)) {
                         link.updateLinkedFile(f);
                         return true;
@@ -121,8 +121,8 @@ public class FileTree {
             return false;
         }
 
-        void checkWrongFile(File f) {
-            if (f instanceof WrongFile wrf)
+        void checkWrongFile(DUFile f) {
+            if (f instanceof WrongDUFile wrf)
                 errors.add(wrf.getPathException());
         }
 
@@ -130,24 +130,24 @@ public class FileTree {
          * Синхронизует отношения файлов потомок-родитель.
          */
         @Override
-        public void visitFile(File file) {
+        public void visitFile(DUFile file) {
             checkWrongFile(file);
             if (checkOriginFile(file))
                 return;
             addChildToParent(file);
-            if (file instanceof LinkFile<? extends File> link) {
+            if (file instanceof LinkDUFile<? extends DUFile> link) {
                 checkLinkFile(link);
             }
         }
 
         @Override
-        public DUAction preVisitParentFile(ParentFile directory) {
+        public DUAction preVisitParentFile(ParentDUFile directory) {
             checkWrongFile(directory);
             if (checkOriginFile(directory))
                 return DUAction.STOP;
 
             addChildToParent(directory);
-            if (directory instanceof LinkFile<? extends File> link) {
+            if (directory instanceof LinkDUFile<? extends DUFile> link) {
                 if (!followLinks)
                     return DUAction.STOP;
                 if (checkLinkFile(link)) {
@@ -158,7 +158,7 @@ public class FileTree {
         }
 
         @Override
-        public void postVisitDirectory(ParentFile directory) {
+        public void postVisitDirectory(ParentDUFile directory) {
             addChildToParent(directory);
         }
 

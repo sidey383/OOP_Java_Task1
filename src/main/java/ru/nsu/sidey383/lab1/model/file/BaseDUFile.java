@@ -5,29 +5,29 @@ import org.jetbrains.annotations.Nullable;
 import java.nio.file.Path;
 
 /**
- * Базовая реализация {@link File}.
+ * Базовая реализация {@link DUFile}.
  */
-public abstract class BaseFile implements File {
+public abstract class BaseDUFile implements DUFile {
 
-    protected ParentFile parent;
+    protected ParentDUFile parent;
 
     protected Path path;
 
     protected long size;
 
-    protected BaseFile(long size, Path path) {
+    protected BaseDUFile(long size, Path path) {
         this.parent = null;
         this.size = size;
         this.path = path;
     }
 
-    public ParentFile getParent() {
+    public ParentDUFile getParent() {
         return parent;
     }
 
     @Nullable
-    public ParentFile setParent(ParentFile parent) {
-        ParentFile p = this.parent;
+    public ParentDUFile setParent(ParentDUFile parent) {
+        ParentDUFile p = this.parent;
         this.parent = parent;
         return p;
     }
@@ -39,7 +39,7 @@ public abstract class BaseFile implements File {
 
     @Override
     public boolean equals(Object obj) {
-        return (obj instanceof File file) && getPath().equals(file.getPath());
+        return (obj instanceof DUFile file) && getPath().equals(file.getPath());
     }
 
     @Override
