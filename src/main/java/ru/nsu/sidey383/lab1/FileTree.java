@@ -32,13 +32,17 @@ public class FileTree {
         this.basePath = options.getFilePath();
         this.followLinks = options.followLink();
     }
-
+    // CR: better to make it static, and create FileTree inside
+    // CR: and return result of building from this method
     public void calculateTree() throws IOException, DUPathException {
+        // CR: move to ctor
         errors = new ArrayList<>();
         /*
         DUSystemFileWalker.walkFiles can throw exceptions.
         walker = null guarantees the correct state of the object.
          */
+        // CR: i think it'll be redundant if we have only one public static method:
+        // CR: if exception was thrown, then we cannot access this walker afterwards
         walker = null;
         walker = DUSystemFileWalker.walkFiles(basePath, new TreeVisitor());
         errors.addAll(walker.getSuppressedExceptions());

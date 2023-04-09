@@ -53,7 +53,7 @@ public interface DUFile {
         return readFile(path, false);
     }
 
-    static DUFile readFile(Path path, boolean resolveLink) {
+    private static DUFile readFile(Path path, boolean resolveLink) {
         LinkOption[] linkOptions = resolveLink ? new LinkOption[0] : new LinkOption[] {LinkOption.NOFOLLOW_LINKS};
         Path originalPath;
 
@@ -90,11 +90,11 @@ public interface DUFile {
                 if (resolveLink) {
                     yield new WrongDUFile(originalSize, originalPath, new DUPathException(path, new IllegalStateException("Resoled file has link type")));
                 } else {
-                    DUFile reslovedFile = readFile(originalPath, true);
-                    if (reslovedFile instanceof ParentDUFile resolvedParent) {
-                        yield  new ParentLinkDUFile(originalSize, originalPath, resolvedParent);
+                    DUFile resolvedFile = readFile(originalPath, true);
+                    if (resolvedFile instanceof ParentDUFile resolvedParent) {
+                        yield new ParentLinkDUFile(originalSize, originalPath, resolvedParent);
                     }
-                    if (reslovedFile instanceof WrongDUFile resolvedWrongFile) {
+                    if (resolvedFile instanceof WrongDUFile resolvedWrongFile) {
                         yield new ExceptionLinkDUFile(originalSize, originalPath, resolvedWrongFile);
                     }
                     yield new SimpleLinkDUFile(originalSize, originalPath, readFile(originalPath, true));

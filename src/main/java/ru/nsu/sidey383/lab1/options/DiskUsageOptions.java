@@ -133,6 +133,7 @@ public class DiskUsageOptions implements FileTreeOptions, FilesPrintOptions {
             return this;
         }
 
+        // CR: tests
         public DiskUsageOptionsBuilder applyConsoleArgs(String[] args) throws DUOptionReadException {
             for (int i = 0; i < args.length; i++) {
                 switch (args[i]) {
@@ -179,6 +180,7 @@ public class DiskUsageOptions implements FileTreeOptions, FilesPrintOptions {
                     throw new DUOptionReadException("Received " + arg + ". A positive number is expected");
                 }
             } catch (NumberFormatException e) {
+                // CR: wrong exception message, it can be too big, but positive
                 throw new DUOptionReadException("Received " + arg + ". A positive number is expected");
             }
         }
