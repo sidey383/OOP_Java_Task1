@@ -90,6 +90,7 @@ public class FileTree {
          * **/
         boolean checkOriginFile(DUFile file) {
             if (!visitedFiles.add(file)) {
+                // CR: maybe it's better to have Map<Path, DUFile>? it would be faster (memory use shouldn't be too bad, also it can be optimized a bit if needed)
                 for (DUFile f : visitedFiles) {
                     if (f.equals(file)) {
                         ParentDUFile parent = file.getParent();

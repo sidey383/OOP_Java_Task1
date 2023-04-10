@@ -42,6 +42,7 @@ public enum DUFileType {
             return OTHER;
         }
         if (attributes.isSymbolicLink()) {
+            // CR: maybe just LINK?
             return OTHER_LINK;
         }
         return OTHER;

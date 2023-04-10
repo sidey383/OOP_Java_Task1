@@ -25,6 +25,7 @@ public class DUSystemFileWalker {
         this.visitor = visitor;
     }
 
+    // CR(minor): DirectoryNode -> WalkerDirectoryNode
     private static class DirectoryNode {
         private final ParentDUFile file;
 
