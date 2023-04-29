@@ -36,6 +36,8 @@ public class DUSystemFileWalker {
         public DirectoryNode(@NotNull ParentDUFile file) throws DUPathException {
             this.file = file;
             try {
+                // CR: seems redundant, would be better to handle link in the same manner as directory, does not matter if
+                // CR: it links to a regular file or a directory
                 if (file instanceof LinkDUFile<?> pfLink && pfLink.getLinkedFile() instanceof ParentDUFile pf) {
                     this.stream = Files.newDirectoryStream(pf.getPath());
                 } else {
@@ -57,6 +59,7 @@ public class DUSystemFileWalker {
             return iterator;
         }
 
+        // CR: make DirectoryNode implements Closeable, would be more readable
         public void close() throws IOException {
             stream.close();
         }

@@ -26,6 +26,8 @@ public class FileTree {
 
     private DUSystemFileWalker walker = null;
 
+    // CR: don't like the idea of having multiple sources of errors (walker also has list of errors)
+    // CR: would be better to have them stored in one place without doing addAll(maybe pass Consumer<DuException> to walker?)
     private List<DUPathException> errors = List.of();
 
     public FileTree(FileTreeOptions options) {

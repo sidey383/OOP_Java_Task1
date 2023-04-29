@@ -68,6 +68,7 @@ public class FileTreePrinter {
             builder.append("/");
         }
 
+        // CR: maybe add method getName for DUFile and move this logic to this method?
         Path fileName = file.getPath().getFileName();
         // getFileName() will return null for root of file system, check this
         if (fileName == null) {

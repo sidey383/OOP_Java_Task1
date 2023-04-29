@@ -23,6 +23,19 @@ public class DUFileTreeTest {
     @RegisterExtension
     private static final SimpleFileSystemGenerator fileSystem = new SimpleFileSystemGenerator();
 
+    /*
+    CR: more tests for different trees, e.g.:
+
+    - empty dir is a root of tree
+    - file is a root of tree
+    - symlink is a root of tree
+    - dir with one regular file is a root of tree
+    - dir with one symlink is a root of tree
+    - dir with one empty dir is a root of tree
+    - file without read permissions
+
+    (same cases for printer)
+     */
     @Test
     public void testWithoutLinks() throws IOException, DUPathException {
         FileTree tree = new FileTree(new FileTreeOptions() {

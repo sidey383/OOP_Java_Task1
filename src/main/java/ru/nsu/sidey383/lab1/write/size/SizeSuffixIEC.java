@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import java.text.DecimalFormat;
 
 public enum SizeSuffixIEC implements DefaultSizeSuffix {
+    // CR(minor): i think we could just override isAtomic method for byte, and not store as field
     GIGABYTE("GiB", null, 0, false),
     MEGABYTE("MiB",GIGABYTE, 1024, false),
     KILOBYTE("KiB", MEGABYTE, 1024, false),
