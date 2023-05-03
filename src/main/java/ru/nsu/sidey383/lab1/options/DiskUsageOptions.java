@@ -13,10 +13,9 @@ import java.nio.file.Path;
  * конфигурация disk usage.
  * <p> Для создание конфигурации используйте {@link DiskUsageOptions#builder()}.
  *
- * @see ru.nsu.sidey383.lab1.options.FileTreeOptions
  * @see ru.nsu.sidey383.lab1.options.FilesPrintOptions
  */
-public class DiskUsageOptions implements FileTreeOptions, FilesPrintOptions {
+public class DiskUsageOptions implements FilesPrintOptions {
 
     private final boolean followLinks;
 
@@ -180,8 +179,7 @@ public class DiskUsageOptions implements FileTreeOptions, FilesPrintOptions {
                     throw new DUOptionReadException("Received " + arg + ". A positive number is expected");
                 }
             } catch (NumberFormatException e) {
-                // CR: wrong exception message, it can be too big, but positive
-                throw new DUOptionReadException("Received " + arg + ". A positive number is expected");
+                throw new DUOptionReadException("Can't read integer value from string \"" + arg + "\"");
             }
         }
 

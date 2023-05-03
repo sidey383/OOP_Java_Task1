@@ -1,14 +1,12 @@
 package ru.nsu.sidey383.lab1.write;
 
 import ru.nsu.sidey383.lab1.model.file.DUFileType;
-import ru.nsu.sidey383.lab1.model.file.LinkDUFile;
 import ru.nsu.sidey383.lab1.model.file.ParentDUFile;
 import ru.nsu.sidey383.lab1.model.file.DUFile;
 import ru.nsu.sidey383.lab1.options.FilesPrintOptions;
 import ru.nsu.sidey383.lab1.write.size.SizeSuffix;
 
 import java.io.PrintStream;
-import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.Stack;
 
@@ -68,14 +66,7 @@ public class FileTreePrinter {
             builder.append("/");
         }
 
-        // CR: maybe add method getName for DUFile and move this logic to this method?
-        Path fileName = file.getPath().getFileName();
-        // getFileName() will return null for root of file system, check this
-        if (fileName == null) {
-            builder.append(file.getPath()).append(" ");
-        } else {
-            builder.append(fileName).append(" ");
-        }
+        builder.append(file.getSimpleName()).append(" ");
 
         if (file instanceof LinkDUFile<?> linkFile) {
             builder.append("[link ").append(linkFile.getLinkedFile().getPath()).append("]");

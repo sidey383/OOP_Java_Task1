@@ -8,10 +8,7 @@ import ru.nsu.sidey383.lab1.model.file.ParentDUFile;
 import ru.nsu.sidey383.lab1.model.file.DUFile;
 import ru.nsu.sidey383.lab1.model.file.DUFileType;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 public class WalkerTest {
 
@@ -30,7 +27,6 @@ public class WalkerTest {
                 .toList();
         TestFileVisitor visitor = new TestFileVisitor(files, dirs);
         DUSystemFileWalker walker = DUSystemFileWalker.walkFiles(fileSystem.getRootDir(), visitor);
-        assertEquals(new ArrayList<>(), walker.getSuppressedExceptions(), "Some suppressed exception in file walker ");
         visitor.checkOnEmpty();
 
     }

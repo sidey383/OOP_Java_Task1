@@ -33,4 +33,6 @@ public interface DUFileVisitor {
      */
     void pathVisitError(@Nullable Path path, @NotNull DUPathException e);
 
+    void directoryCloseError(@NotNull Path path, @NotNull DUPathException e);
+
 }

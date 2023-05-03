@@ -59,6 +59,13 @@ public class DUFileTest {
 
     }
 
+    @Test
+    @Order(3)
+    private void notDirectoryException() {
+        Path path = Path.of("C:\\Users\\sidey\\programming\\java\\study\\oop_java\\OOP_Java_Task1\\.atest\\dir\\link\\wlink\\link\\wlink\\link\\text.txt");
+        DUFile file = DUFile.readFile(path);
+    }
+
     private void checkFileEquals(Path p1, Path p2) {
         DUFile f1 = DUFile.readFile(p1);
         DUFile f2 = DUFile.readFile(p2);
@@ -76,4 +83,5 @@ public class DUFileTest {
                         p1 + ": " + f1.toString() + "\n" +
                         p2 + ": " + f2.toString() + "\n");
     }
+
 }

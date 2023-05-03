@@ -1,13 +1,8 @@
 package ru.nsu.sidey383.lab1.model.file;
 
-import ru.nsu.sidey383.lab1.model.file.base.DirectoryDUFile;
-import ru.nsu.sidey383.lab1.model.file.base.OtherDUFile;
-import ru.nsu.sidey383.lab1.model.file.base.RegularDUFile;
-import ru.nsu.sidey383.lab1.model.file.base.WrongDUFile;
+import org.jetbrains.annotations.NotNull;
+import ru.nsu.sidey383.lab1.model.file.base.*;
 import ru.nsu.sidey383.lab1.model.file.exception.DUPathException;
-import ru.nsu.sidey383.lab1.model.file.link.ExceptionLinkDUFile;
-import ru.nsu.sidey383.lab1.model.file.link.ParentLinkDUFile;
-import ru.nsu.sidey383.lab1.model.file.link.SimpleLinkDUFile;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -42,6 +37,20 @@ public interface DUFile {
     Path getPath();
 
     /**
+     * @return simple name of file
+     * **/
+    @NotNull
+    default String getSimpleName() {
+        Path fileName = getPath().getFileName();
+        // getFileName() will return null for root of file system, check this
+        if (fileName == null) {
+            return getPath().toString();
+        } else {
+            return fileName.toString();
+        }
+    }
+
+    /**
      * Фабричный метод для создания {@link DUFile}.
      * <p> Перед созданием объекта разрешает путь до файла, а для ссылок переходит по ссылке с помощью {@link Path#toRealPath(LinkOption...)}.
      * <p> Все ошибки создания отражаются в созданном файле {@link ExceptionDUFile}
@@ -49,24 +58,15 @@ public interface DUFile {
      * @see Path#toRealPath(LinkOption...)
      * @see Files#readAttributes(Path, Class, LinkOption...)
      */
-    static DUFile readFile(Path path) {
+    public static DUFile readFile(Path path) {
         return readFile(path, false);
     }
 
-    private static DUFile readFile(Path path, boolean resolveLink) {
+    public static DUFile readFile(Path path, boolean resolveLink) {
         LinkOption[] linkOptions = resolveLink ? new LinkOption[0] : new LinkOption[] {LinkOption.NOFOLLOW_LINKS};
         Path originalPath;
-
         try {
-            originalPath = path.toRealPath(linkOptions);
-        } catch (NotDirectoryException e1) {
-            try {
-                // CR: how this can happen? we didn't expect this path to be a directory, no?
-                // CR: also I would've moved all this to separate method and wrote a javadoc if you think that this situation is possible
-                originalPath = path.toRealPath();
-            } catch (IOException e2) {
-                return new WrongDUFile(0, path, new DUPathException(path, e2));
-            }
+            originalPath = getRealPath(path, linkOptions);
         } catch (IOException e) {
             return new WrongDUFile(0, path, new DUPathException(path, e));
         }
@@ -79,38 +79,43 @@ public interface DUFile {
             return new WrongDUFile(0, originalPath, new DUPathException(path, e));
         }
 
-        // CR: javadoc does not say that we wouldn't traverse files of directory in order to find size
-        // CR: if you found this info somewhere please add a link here, otherwise we need to rewrite it
-        long originalSize = originalAttributes.size();
-        DUFileType originalType = DUFileType.toSimpleType(originalAttributes);
+        DUFileType fileType = DUFileType.toSimpleType(originalAttributes);
 
-        if (originalSize < 0)
-            originalSize = 0;
-
-        return switch (originalType) {
-            case REGULAR_FILE -> new RegularDUFile(originalSize, originalPath);
-            case DIRECTORY -> new DirectoryDUFile(originalSize, originalPath);
-            case OTHER_LINK -> {
+        return switch (fileType) {
+            case REGULAR_FILE -> new RegularDUFile(originalAttributes.size(), originalPath);
+            case DIRECTORY -> new DirectoryDUFile(0, originalPath);
+            case LINK -> {
                 if (resolveLink) {
-                    // CR: too many link classes. just have one LinkDUFile with field target: DUFile
-                    yield new WrongDUFile(originalSize, originalPath, new DUPathException(path, new IllegalStateException("Resoled file has link type")));
+                    yield new WrongDUFile(0, originalPath, new DUPathException(path, new IllegalStateException("Resoled file has link type")));
                     // CR: also strange idea to create and carry exceptions around, can't we move this method to DUSystemFileWalker and add exceptions to exception list?
                 } else {
-                    // CR: seems more reasonable to resolve links in the same place where we work with directories (both can be handled using queue)
-                    DUFile resolvedFile = readFile(originalPath, true);
-                    if (resolvedFile instanceof ParentDUFile resolvedParent) {
-                        yield new ParentLinkDUFile(originalSize, originalPath, resolvedParent);
+                    try {
+                        yield new LinkDUFile(0, originalPath, getRealPath(originalPath));
+                    }  catch (IOException e) {
+                        yield new WrongDUFile(0, originalPath, new DUPathException(originalPath ,e));
                     }
-                    if (resolvedFile instanceof WrongDUFile resolvedWrongFile) {
-                        yield new ExceptionLinkDUFile(originalSize, originalPath, resolvedWrongFile);
-                    }
-                    yield new SimpleLinkDUFile(originalSize, originalPath, readFile(originalPath, true));
                 }
 
             }
-            case OTHER -> new OtherDUFile(originalSize, originalPath);
-            default -> new WrongDUFile(originalSize, originalPath, new DUPathException(path, new IllegalStateException("Incorrect file type")));
+            case OTHER -> new OtherDUFile(0, originalPath);
+            default -> new WrongDUFile(0, originalPath, new DUPathException(path, new IllegalStateException("Incorrect file type")));
         };
+    }
+
+    /**
+     * When path contain weak links {@link Path#toRealPath(LinkOption...)} with {@link LinkOption#NOFOLLOW_LINKS} can produce {@link NotDirectoryException}.
+     * <p> In this case use {@link Path#toRealPath(LinkOption...)} without parameters.
+     *
+     * @throws IOException see exceptions in {@link Path#toRealPath(LinkOption...)}
+     *
+     * @return real path if than possible
+     * **/
+    private static Path getRealPath(Path path, LinkOption... linkOptions) throws IOException {
+        try {
+            return path.toRealPath(linkOptions);
+        } catch (NotDirectoryException e1) {
+            return path.toRealPath();
+        }
     }
 
 }

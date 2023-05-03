@@ -62,4 +62,9 @@ public class TestFileVisitor implements DUFileVisitor {
             throw e;
         }, "call pathVisitError for correct paths");
     }
+
+    @Override
+    public void directoryCloseError(@NotNull Path path, @NotNull DUPathException e) {
+        assertNull(e, "Some suppressed exception in file walker");
+    }
 }

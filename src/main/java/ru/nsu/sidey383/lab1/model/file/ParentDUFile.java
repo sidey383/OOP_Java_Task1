@@ -1,6 +1,6 @@
 package ru.nsu.sidey383.lab1.model.file;
 
-import java.util.Set;
+import java.util.Collection;
 
 /**
  * Расширенный файловый интерфейс для работы с дочерними файлами
@@ -8,9 +8,9 @@ import java.util.Set;
 public interface ParentDUFile extends DUFile {
 
     /**
-     * @return копию множества дочерних файлов
+     * @return коллекцию дочерних файлов
      * **/
-    Set<DUFile> getChildren();
+    Collection<DUFile> getChildren();
 
     /**
      * Добавить потомка для данного файла. Игнорирует копии.

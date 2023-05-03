@@ -26,18 +26,7 @@ public class Main {
             return;
         }
 
-        FileTree fileTree = new FileTree(options);
-
-        try {
-            fileTree.calculateTree();
-        } catch (DUPathException e) {
-            System.err.println(e.toUserMessage());
-            return;
-        } catch (IOException e) {
-            System.err.println("File tree build error");
-            e.printStackTrace(System.err);
-            return;
-        }
+        FileTree fileTree = FileTree.calculateTree(options.getFilePath(), options.followLink());
 
         if (fileTree.hasErrors())
             for (DUPathException error : fileTree.getErrors())

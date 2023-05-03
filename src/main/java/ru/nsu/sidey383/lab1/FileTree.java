@@ -2,57 +2,37 @@ package ru.nsu.sidey383.lab1;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import ru.nsu.sidey383.lab1.model.file.LinkDUFile;
 import ru.nsu.sidey383.lab1.model.file.ParentDUFile;
 import ru.nsu.sidey383.lab1.model.file.DUFile;
 import ru.nsu.sidey383.lab1.model.file.base.WrongDUFile;
 import ru.nsu.sidey383.lab1.model.file.exception.DUPathException;
-import ru.nsu.sidey383.lab1.options.FileTreeOptions;
 import ru.nsu.sidey383.lab1.walker.DUFileVisitor;
 import ru.nsu.sidey383.lab1.walker.DUAction;
 import ru.nsu.sidey383.lab1.walker.DUSystemFileWalker;
 
-import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public class FileTree {
-
-    private final Path basePath;
 
     private final boolean followLinks;
 
     private DUSystemFileWalker walker = null;
 
-    // CR: don't like the idea of having multiple sources of errors (walker also has list of errors)
-    // CR: would be better to have them stored in one place without doing addAll(maybe pass Consumer<DuException> to walker?)
-    private List<DUPathException> errors = List.of();
+    private final List<DUPathException> errors;
 
-    public FileTree(FileTreeOptions options) {
-        this.basePath = options.getFilePath();
-        this.followLinks = options.followLink();
+    private FileTree(boolean followLinks) {
+        this.followLinks = followLinks;
+        this.errors = new ArrayList<>();
     }
-    // CR: better to make it static, and create FileTree inside
-    // CR: and return result of building from this method
-    public void calculateTree() throws IOException, DUPathException {
-        // CR: move to ctor
-        errors = new ArrayList<>();
-        /*
-        DUSystemFileWalker.walkFiles can throw exceptions.
-        walker = null guarantees the correct state of the object.
-         */
-        // CR: i think it'll be redundant if we have only one public static method:
-        // CR: if exception was thrown, then we cannot access this walker afterwards
-        walker = null;
-        walker = DUSystemFileWalker.walkFiles(basePath, new TreeVisitor());
-        errors.addAll(walker.getSuppressedExceptions());
+
+    public static FileTree calculateTree(Path path, boolean followLinks) {
+        FileTree tree = new FileTree(followLinks);
+        tree.walker = DUSystemFileWalker.walkFiles(path, tree.new TreeVisitor());
+        return tree;
     }
 
     /**
-     * Возвращает null если метод {@link FileTree#calculateTree()} не был вызван или выкинул исключение.
-     *
      * @return корневой файл дерева.
      */
     @Nullable
@@ -61,7 +41,7 @@ public class FileTree {
     }
 
     /**
-     * @return все {@link DUPathException}, созданные и подавленные при вызове {@link DUSystemFileWalker#walkFiles(Path, DUFileVisitor)}.
+     * @return все {@link DUPathException}, созданные и подавленные при построении дерева.
      */
     public List<DUPathException> getErrors() {
         return List.copyOf(errors);
@@ -76,7 +56,7 @@ public class FileTree {
 
     private class TreeVisitor implements DUFileVisitor {
 
-        private final HashSet<DUFile> visitedFiles = new HashSet<>();
+        private final Map<DUFile, DUFile> visitedFiles = new HashMap<>();
 
         private void addChildToParent(DUFile f) {
             ParentDUFile parent = f.getParent();
@@ -91,41 +71,15 @@ public class FileTree {
          * <p> false если файл ещё не был пройден
          * **/
         boolean checkOriginFile(DUFile file) {
-            if (!visitedFiles.add(file)) {
-                // CR: maybe it's better to have Map<Path, DUFile>? it would be faster (memory use shouldn't be too bad, also it can be optimized a bit if needed)
-                for (DUFile f : visitedFiles) {
-                    if (f.equals(file)) {
-                        ParentDUFile parent = file.getParent();
-                        if (parent != null) {
-                            parent.addChild(f);
-                            f.setParent(parent);
-                        }
-                        return true;
-                    }
+            DUFile mapValue = visitedFiles.merge(file, file, (originFile, newFile) -> {
+                ParentDUFile parent = newFile.getParent();
+                if (parent != null) {
+                    parent.addChild(originFile);
+                    originFile.setParent(parent);
                 }
-                throw new IllegalStateException("File already contains in Set, but no equal file was found");
-            }
-            return false;
-        }
-
-        /**
-         * Функция для ссылко на файл.
-         * <p>Проверяет пройден ли файл, на который указывает ссылка. Если он уже пройден, то корректирует файл на который ссылается ссылка.
-         * @return true если файл уже был пройдет
-         * <p> false если файл ещё не был пройден
-         * **/
-        boolean checkLinkFile(LinkDUFile<? extends DUFile> link) {
-            DUFile linkedFile = link.getLinkedFile();
-            if (!visitedFiles.add(linkedFile)) {
-                for (DUFile f : visitedFiles) {
-                    if (f.equals(linkedFile)) {
-                        link.updateLinkedFile(f);
-                        return true;
-                    }
-                }
-                throw new IllegalStateException("File already contains in Set, but no equal file was found");
-            }
-            return false;
+                return originFile;
+            });
+            return mapValue != file;
         }
 
         void checkWrongFile(DUFile f) {
@@ -176,6 +130,11 @@ public class FileTree {
          */
         @Override
         public void pathVisitError(@Nullable Path path, @NotNull DUPathException e) {
+            errors.add(e);
+        }
+
+        @Override
+        public void directoryCloseError(@NotNull Path path, @NotNull DUPathException e) {
             errors.add(e);
         }
 
