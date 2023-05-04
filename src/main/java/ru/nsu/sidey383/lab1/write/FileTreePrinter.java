@@ -62,18 +62,11 @@ public class FileTreePrinter {
         StringBuilder builder = new StringBuilder();
         DUFileType type = file.getFileType();
 
-        if (type.isDirectory()) {
-            builder.append("/");
-        }
-
-        builder.append(file.getSimpleName()).append(" ");
-
-        if (file instanceof LinkDUFile<?> linkFile) {
-            builder.append("[link ").append(linkFile.getLinkedFile().getPath()).append("]");
-        } else if (type == DUFileType.OTHER) {
-            builder.append("[unknown type]");
-        } else {
-            builder.append("[").append(sizeSuffix.getValue(file.getSize())).append("]");
+        switch (type) {
+            case REGULAR_FILE -> builder.append(file.getSimpleName()).append(" ").append("[").append(sizeSuffix.getValue(file.getSize())).append("]");
+            case DIRECTORY -> builder.append("/").append(file.getSimpleName()).append("[").append(sizeSuffix.getValue(file.getSize())).append("]");
+            case OTHER -> builder.append(file.getSimpleName()).append(" ").append("[unknown type]");
+            case LINK -> builder.append("*").append(file.getSimpleName());
         }
 
         return builder.toString();

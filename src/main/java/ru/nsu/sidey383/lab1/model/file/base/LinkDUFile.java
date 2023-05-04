@@ -20,12 +20,12 @@ public class LinkDUFile extends BaseDUFile implements ReferenceDUFile {
     }
 
     @Override
-    public DUFileType getFileType() {
+    public @NotNull DUFileType getFileType() {
         return DUFileType.LINK;
     }
 
     @Override
-    public Collection<DUFile> getChildren() {
+    public @NotNull Collection<DUFile> getChildren() {
         return singletonCollection;
     }
 
@@ -74,7 +74,7 @@ public class LinkDUFile extends BaseDUFile implements ReferenceDUFile {
         @Override
         public Iterator<T> iterator() {
             return new Iterator<>() {
-                private boolean hasNext = true;
+                private boolean hasNext = !isEmpty;
                 @Override
                 public boolean hasNext() {
                     return hasNext;
@@ -82,11 +82,9 @@ public class LinkDUFile extends BaseDUFile implements ReferenceDUFile {
 
                 @Override
                 public T next() {
-                    if (hasNext) {
+                    if (hasNext)
                         hasNext = false;
-                        return value;
-                    }
-                    return null;
+                    return value;
                 }
 
                 @Override
@@ -98,14 +96,16 @@ public class LinkDUFile extends BaseDUFile implements ReferenceDUFile {
         }
 
         @Override
-        public Object [] toArray() {
+        @NotNull
+        public Object @NotNull [] toArray() {
             return isEmpty ? new Object[0] : new Object[] {value};
         }
 
         @Override
-        public <T1> T1 [] toArray(@NotNull T1[] a) {
+        @SuppressWarnings("unchecked")
+        public <T1> T1 [] toArray(T1 @NotNull [] a) {
             if (!isEmpty) {
-                if (a.length == 0)
+                if (a.length < 1)
                     a = (T1[]) java.lang.reflect.Array.newInstance(a.getClass().getComponentType(), 1);
                 a[0] = (T1) value;
             }
@@ -115,7 +115,7 @@ public class LinkDUFile extends BaseDUFile implements ReferenceDUFile {
         @Override
         public boolean add(T t) {
             if (!isEmpty)
-                return false;
+                return Objects.equals(t, value);
             value = t;
             isEmpty = false;
             return true;
@@ -143,7 +143,7 @@ public class LinkDUFile extends BaseDUFile implements ReferenceDUFile {
             Iterator<? extends T> iterator = c.iterator();
             if (!iterator.hasNext())
                 return true;
-            if (isEmpty)
+            if (!isEmpty)
                 return false;
             value = iterator.next();
             isEmpty = false;

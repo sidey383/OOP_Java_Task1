@@ -1,18 +1,18 @@
 package ru.nsu.sidey383.lab1.walker.node;
 
 import ru.nsu.sidey383.lab1.model.file.ParentDUFile;
-import ru.nsu.sidey383.lab1.model.file.base.LinkDUFile;
+import ru.nsu.sidey383.lab1.model.file.ReferenceDUFile;
 
 import java.nio.file.Path;
 import java.util.Iterator;
 
 public class DULinkNode implements DUWalkerNode {
 
-    private final LinkDUFile file;
+    private final ReferenceDUFile file;
 
     private final Iterator<Path> iterator;
 
-    public DULinkNode(LinkDUFile file) {
+    public DULinkNode(ReferenceDUFile file) {
         this.file = file;
         this.iterator = new Iterator<>() {
 

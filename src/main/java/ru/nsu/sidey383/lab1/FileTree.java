@@ -2,6 +2,7 @@ package ru.nsu.sidey383.lab1;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import ru.nsu.sidey383.lab1.model.file.DUFileType;
 import ru.nsu.sidey383.lab1.model.file.ParentDUFile;
 import ru.nsu.sidey383.lab1.model.file.DUFile;
 import ru.nsu.sidey383.lab1.model.file.base.WrongDUFile;
@@ -56,35 +57,23 @@ public class FileTree {
 
     private class TreeVisitor implements DUFileVisitor {
 
-        private final Map<DUFile, DUFile> visitedFiles = new HashMap<>();
+        /**
+         * The key and value in this map are the same object
+         **/
+        private final Map<DUFile, DUFile> visitedLinks = new HashMap<>();
 
-        private void addChildToParent(DUFile f) {
-            ParentDUFile parent = f.getParent();
-            if (parent != null)
-                parent.addChild(f);
+        void readErrors(DUFile f) {
+            if (f instanceof WrongDUFile wrf)
+                errors.add(wrf.getPathException());
         }
 
         /**
-         * Функция для оригинальных файлов.
-         * <p>Проверяет пройден ли файл. Если он уже пройден (по ссылке), то устанавливает ему корректного родителя.
-         * @return true если файл уже был пройдет
-         * <p> false если файл ещё не был пройден
+         * If this child contains a parent adds a parent-child relationship
+         *
+         * @param child child file
          * **/
-        boolean checkOriginFile(DUFile file) {
-            DUFile mapValue = visitedFiles.merge(file, file, (originFile, newFile) -> {
-                ParentDUFile parent = newFile.getParent();
-                if (parent != null) {
-                    parent.addChild(originFile);
-                    originFile.setParent(parent);
-                }
-                return originFile;
-            });
-            return mapValue != file;
-        }
-
-        void checkWrongFile(DUFile f) {
-            if (f instanceof WrongDUFile wrf)
-                errors.add(wrf.getPathException());
+        private static void addChildToParent(DUFile child) {
+            child.getParent().ifPresent(p -> p.addChild(child));
         }
 
         /**
@@ -92,26 +81,23 @@ public class FileTree {
          */
         @Override
         public void visitFile(DUFile file) {
-            checkWrongFile(file);
-            if (checkOriginFile(file))
-                return;
+            readErrors(file);
             addChildToParent(file);
-            if (file instanceof LinkDUFile<? extends DUFile> link) {
-                checkLinkFile(link);
-            }
         }
 
         @Override
         public DUAction preVisitParentFile(ParentDUFile directory) {
-            checkWrongFile(directory);
-            if (checkOriginFile(directory))
-                return DUAction.STOP;
-
-            addChildToParent(directory);
-            if (directory instanceof LinkDUFile<? extends DUFile> link) {
-                if (!followLinks)
-                    return DUAction.STOP;
-                if (checkLinkFile(link)) {
+            readErrors(directory);
+            if (directory.getFileType() == DUFileType.LINK) {
+                if (followLinks) {
+                    DUFile link = visitedLinks.merge(directory, directory, (duFile, duFile2) -> {
+                        duFile2.getParent().ifPresent(p -> p.addChild(duFile));
+                        return duFile;
+                    });
+                    if (link != directory)
+                        return DUAction.STOP;
+                } else {
+                    addChildToParent(directory);
                     return DUAction.STOP;
                 }
             }

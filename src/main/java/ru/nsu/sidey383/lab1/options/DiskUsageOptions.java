@@ -43,13 +43,11 @@ public class DiskUsageOptions implements FilesPrintOptions {
         this.sizeSuffix = sizeSuffix;
     }
 
-    @Override
     public boolean followLink() {
         return followLinks;
     }
 
     @NotNull
-    @Override
     public Path getFilePath() {
         return filePath;
     }

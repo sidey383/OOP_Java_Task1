@@ -27,13 +27,12 @@ public class DUSystemFileWalker {
             try {
                 initQueue(queue, rootDir);
                 while (!queue.isEmpty()) {
-                    DUWalkerNode node = queue.peek();
+                    DUWalkerNode node = queue.getLast();
                     Iterator<Path> iterator = node.getPathIterator();
                     if (iterator.hasNext()) {
                         visitFile(iterator.next(), queue, node.getParent());
                     } else {
-                        queue.remove();
-                        suppressedNodeClose(node);
+                        suppressedNodeClose(queue.removeLast());
                         visitor.postVisitDirectory(node.getParent());
                     }
                 }
@@ -52,7 +51,7 @@ public class DUSystemFileWalker {
             file.setParent(parent);
             if (file instanceof ParentDUFile parentFile) {
                 if (visitor.preVisitParentFile(parentFile) == DUAction.CONTINUE) {
-                    queue.add(DUWalkerNode.createWalker(parentFile));
+                    queue.addLast(DUWalkerNode.createWalker(parentFile));
                 }
             } else {
                 visitor.visitFile(file);

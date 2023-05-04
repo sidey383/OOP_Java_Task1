@@ -1,5 +1,6 @@
 package ru.nsu.sidey383.lab1.model.file.base;
 
+import org.jetbrains.annotations.NotNull;
 import ru.nsu.sidey383.lab1.model.file.BaseDUFile;
 import ru.nsu.sidey383.lab1.model.file.DUFile;
 import ru.nsu.sidey383.lab1.model.file.DUFileType;
@@ -18,12 +19,12 @@ public class DirectoryDUFile extends BaseDUFile implements ParentDUFile {
     }
 
     @Override
-    public DUFileType getFileType() {
+    public @NotNull DUFileType getFileType() {
         return DUFileType.DIRECTORY;
     }
 
     @Override
-    public Set<DUFile> getChildren() {
+    public @NotNull Set<DUFile> getChildren() {
         return child;
     }
 

@@ -1,8 +1,9 @@
 package ru.nsu.sidey383.lab1.model.file;
 
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * Базовая реализация {@link DUFile}.
@@ -21,13 +22,13 @@ public abstract class BaseDUFile implements DUFile {
         this.path = path;
     }
 
-    public ParentDUFile getParent() {
-        return parent;
+    public @NotNull Optional<ParentDUFile> getParent() {
+        return Optional.ofNullable(parent);
     }
 
-    @Nullable
-    public ParentDUFile setParent(ParentDUFile parent) {
-        ParentDUFile p = this.parent;
+    @NotNull
+    public Optional<ParentDUFile> setParent(ParentDUFile parent) {
+        Optional<ParentDUFile> p = Optional.ofNullable(this.parent);
         this.parent = parent;
         return p;
     }
@@ -45,14 +46,14 @@ public abstract class BaseDUFile implements DUFile {
     @Override
     public String toString() {
         return this.getClass().getSimpleName() + "{" +
-                "size=" + size +
-                ", path= " + path +
-                ", parent=" + (parent == null ? null : parent.getPath()) +
+                "size=" + getSize() +
+                ", path= " + getPath() +
+                ", parent=" + getParent().map(ParentDUFile::getPath).map(Object::toString).orElse("") +
                 '}';
     }
 
     @Override
-    public Path getPath() {
+    public @NotNull Path getPath() {
         return path;
     }
 

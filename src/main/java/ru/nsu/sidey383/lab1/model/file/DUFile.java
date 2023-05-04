@@ -7,6 +7,8 @@ import ru.nsu.sidey383.lab1.model.file.exception.DUPathException;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Базовый инетрфейс файла.
@@ -21,7 +23,8 @@ public interface DUFile {
      *
      * @see ParentDUFile#getChildren()
      */
-    ParentDUFile getParent();
+    @NotNull
+    Optional<ParentDUFile> getParent();
 
     /**
      * Изменяет только состоянние данного файла.
@@ -29,11 +32,14 @@ public interface DUFile {
      *
      * @return null или старая родительская директория.
      */
+    @NotNull
     @SuppressWarnings("UnusedReturnValue")
-    ParentDUFile setParent(ParentDUFile file);
+    Optional<ParentDUFile> setParent(ParentDUFile file);
 
+    @NotNull
     DUFileType getFileType();
 
+    @NotNull
     Path getPath();
 
     /**
@@ -43,11 +49,7 @@ public interface DUFile {
     default String getSimpleName() {
         Path fileName = getPath().getFileName();
         // getFileName() will return null for root of file system, check this
-        if (fileName == null) {
-            return getPath().toString();
-        } else {
-            return fileName.toString();
-        }
+        return Objects.requireNonNullElseGet(fileName, this::getPath).toString();
     }
 
     /**
@@ -58,11 +60,11 @@ public interface DUFile {
      * @see Path#toRealPath(LinkOption...)
      * @see Files#readAttributes(Path, Class, LinkOption...)
      */
-    public static DUFile readFile(Path path) {
+    static DUFile readFile(Path path) {
         return readFile(path, false);
     }
 
-    public static DUFile readFile(Path path, boolean resolveLink) {
+    static DUFile readFile(Path path, boolean resolveLink) {
         LinkOption[] linkOptions = resolveLink ? new LinkOption[0] : new LinkOption[] {LinkOption.NOFOLLOW_LINKS};
         Path originalPath;
         try {
@@ -98,7 +100,6 @@ public interface DUFile {
 
             }
             case OTHER -> new OtherDUFile(0, originalPath);
-            default -> new WrongDUFile(0, originalPath, new DUPathException(path, new IllegalStateException("Incorrect file type")));
         };
     }
 

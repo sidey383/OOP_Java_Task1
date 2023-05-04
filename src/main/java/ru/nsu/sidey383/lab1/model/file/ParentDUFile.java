@@ -1,5 +1,7 @@
 package ru.nsu.sidey383.lab1.model.file;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Collection;
 
 /**
@@ -10,6 +12,7 @@ public interface ParentDUFile extends DUFile {
     /**
      * @return коллекцию дочерних файлов
      * **/
+    @NotNull
     Collection<DUFile> getChildren();
 
     /**

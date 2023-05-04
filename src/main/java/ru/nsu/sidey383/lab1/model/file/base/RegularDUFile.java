@@ -1,5 +1,6 @@
 package ru.nsu.sidey383.lab1.model.file.base;
 
+import org.jetbrains.annotations.NotNull;
 import ru.nsu.sidey383.lab1.model.file.BaseDUFile;
 import ru.nsu.sidey383.lab1.model.file.DUFileType;
 
@@ -12,7 +13,7 @@ public class RegularDUFile extends BaseDUFile {
     }
 
     @Override
-    public DUFileType getFileType() {
+    public @NotNull DUFileType getFileType() {
         return DUFileType.REGULAR_FILE;
     }
 

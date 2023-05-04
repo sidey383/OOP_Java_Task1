@@ -1,20 +1,15 @@
 package ru.nsu.sidey383.lab1;
 
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import ru.nsu.sidey383.lab1.generator.SimpleFileSystemGenerator;
 import ru.nsu.sidey383.lab1.model.file.ParentDUFile;
 import ru.nsu.sidey383.lab1.model.file.DUFile;
 import ru.nsu.sidey383.lab1.model.file.DUFileType;
-import ru.nsu.sidey383.lab1.model.file.exception.DUPathException;
 
-import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -57,7 +52,7 @@ public class DUFileTreeTest {
         testFilesInDirectory(attached.get(),
                 Map.of(
                         DUFileType.REGULAR_FILE, 5L,
-                        DUFileType.DIRECTORY_LINK, 1L
+                        DUFileType.LINK, 1L
                 ));
 
     }
@@ -65,7 +60,7 @@ public class DUFileTreeTest {
     public void testFilesInDirectory(DUFile dir , Map<DUFileType, Long> fileCount) {
 
         assertAll("Check child of directory file",
-                () -> assertTrue(dir.getFileType().isDirectory(), "File not directory"),
+                () -> assertNotSame(dir.getFileType(), DUFileType.DIRECTORY, "File not directory"),
                 () -> assertEquals(fileCount.values().stream().mapToLong(Long::longValue).sum(), ((ParentDUFile)dir).getChildren().size(), "Wrong count of child"),
                 () -> {
                     Collection<DUFile> files = ((ParentDUFile)dir).getChildren();

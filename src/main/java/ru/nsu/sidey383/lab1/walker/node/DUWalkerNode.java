@@ -1,6 +1,7 @@
 package ru.nsu.sidey383.lab1.walker.node;
 
 import ru.nsu.sidey383.lab1.model.file.ParentDUFile;
+import ru.nsu.sidey383.lab1.model.file.ReferenceDUFile;
 import ru.nsu.sidey383.lab1.model.file.base.DirectoryDUFile;
 import ru.nsu.sidey383.lab1.model.file.exception.DUPathException;
 
@@ -14,9 +15,12 @@ public interface DUWalkerNode extends Closeable {
 
     Iterator<Path> getPathIterator();
 
-    public static DUWalkerNode createWalker(ParentDUFile file) throws DUPathException {
+    static DUWalkerNode createWalker(ParentDUFile file) throws DUPathException {
         if (file instanceof DirectoryDUFile dir) {
             return new DUDirectoryNode(dir);
+        }
+        if (file instanceof ReferenceDUFile referenceDUFile) {
+            return new DULinkNode(referenceDUFile);
         }
         return new DUWalkerNode() {
             @Override
@@ -26,7 +30,7 @@ public interface DUWalkerNode extends Closeable {
 
             @Override
             public Iterator<Path> getPathIterator() {
-                return new Iterator<Path>() {
+                return new Iterator<>() {
                     @Override
                     public boolean hasNext() {
                         return false;
