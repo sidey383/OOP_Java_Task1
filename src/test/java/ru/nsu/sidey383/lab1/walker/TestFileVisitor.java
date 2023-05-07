@@ -2,6 +2,7 @@ package ru.nsu.sidey383.lab1.walker;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import ru.nsu.sidey383.lab1.model.file.DUFileType;
 import ru.nsu.sidey383.lab1.model.file.ParentDUFile;
 import ru.nsu.sidey383.lab1.model.file.DUFile;
 import ru.nsu.sidey383.lab1.model.file.exception.DUPathException;
@@ -45,7 +46,7 @@ public class TestFileVisitor implements DUFileVisitor {
 
     @Override
     public DUAction preVisitParentFile(ParentDUFile directory) {
-        if (directory.getFileType().isLink())
+        if (directory.getFileType() == DUFileType.LINK)
             return DUAction.STOP;
         assertTrue(preVisitDirs.remove(directory), directory + " not expected in preVisitDirectory");
         return DUAction.CONTINUE;

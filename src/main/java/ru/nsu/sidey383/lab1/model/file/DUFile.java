@@ -44,7 +44,7 @@ public interface DUFile {
 
     /**
      * @return simple name of file
-     * **/
+     **/
     @NotNull
     default String getSimpleName() {
         Path fileName = getPath().getFileName();
@@ -61,11 +61,7 @@ public interface DUFile {
      * @see Files#readAttributes(Path, Class, LinkOption...)
      */
     static DUFile readFile(Path path) {
-        return readFile(path, false);
-    }
-
-    static DUFile readFile(Path path, boolean resolveLink) {
-        LinkOption[] linkOptions = resolveLink ? new LinkOption[0] : new LinkOption[] {LinkOption.NOFOLLOW_LINKS};
+        LinkOption[] linkOptions = new LinkOption[]{LinkOption.NOFOLLOW_LINKS};
         Path originalPath;
         try {
             originalPath = getRealPath(path, linkOptions);
@@ -87,17 +83,11 @@ public interface DUFile {
             case REGULAR_FILE -> new RegularDUFile(originalAttributes.size(), originalPath);
             case DIRECTORY -> new DirectoryDUFile(0, originalPath);
             case LINK -> {
-                if (resolveLink) {
-                    yield new WrongDUFile(0, originalPath, new DUPathException(path, new IllegalStateException("Resoled file has link type")));
-                    // CR: also strange idea to create and carry exceptions around, can't we move this method to DUSystemFileWalker and add exceptions to exception list?
-                } else {
-                    try {
-                        yield new LinkDUFile(0, originalPath, getRealPath(originalPath));
-                    }  catch (IOException e) {
-                        yield new WrongDUFile(0, originalPath, new DUPathException(originalPath ,e));
-                    }
+                try {
+                    yield new LinkDUFile(0, originalPath, Files.readSymbolicLink(originalPath));
+                } catch (IOException e) {
+                    yield new WrongDUFile(0, originalPath, new DUPathException(originalPath, e));
                 }
-
             }
             case OTHER -> new OtherDUFile(0, originalPath);
         };
@@ -107,10 +97,9 @@ public interface DUFile {
      * When path contain weak links {@link Path#toRealPath(LinkOption...)} with {@link LinkOption#NOFOLLOW_LINKS} can produce {@link NotDirectoryException}.
      * <p> In this case use {@link Path#toRealPath(LinkOption...)} without parameters.
      *
-     * @throws IOException see exceptions in {@link Path#toRealPath(LinkOption...)}
-     *
      * @return real path if than possible
-     * **/
+     * @throws IOException see exceptions in {@link Path#toRealPath(LinkOption...)}
+     **/
     private static Path getRealPath(Path path, LinkOption... linkOptions) throws IOException {
         try {
             return path.toRealPath(linkOptions);

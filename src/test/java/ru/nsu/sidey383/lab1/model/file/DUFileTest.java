@@ -3,8 +3,10 @@ package ru.nsu.sidey383.lab1.model.file;
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import ru.nsu.sidey383.lab1.generator.SimpleFileSystemGenerator;
+import ru.nsu.sidey383.lab1.model.file.base.LinkDUFile;
+import ru.nsu.sidey383.lab1.model.file.base.WrongDUFile;
 
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -14,14 +16,14 @@ import java.util.List;
 public class DUFileTest {
 
     @RegisterExtension
-    private static final SimpleFileSystemGenerator fileSystem = new SimpleFileSystemGenerator();
+    private static final FileTestFileSystem fileSystem = new FileTestFileSystem();
 
     @Test
     @Order(1)
-    @DisplayName("Base check File#equals()")
+    @DisplayName("Base check DUFile#equals()")
     void simpleEqualsTest() {
 
-        List<Path> files = fileSystem.getAllPaths();
+        List<Path> files = fileSystem.getIdenticalFileLists()[0];
 
         for (int i = 0; i < files.size(); i++) {
             for (int j = 0; j < files.size(); j++) {
@@ -37,15 +39,15 @@ public class DUFileTest {
 
     @Test
     @Order(2)
-    @DisplayName("Check File#equals() by different path")
+    @DisplayName("Check DUFile#equals() by different path")
     void differentPathEqualsTest() {
 
-        List<List<Path>> equalsPathLists = fileSystem.getEqualsPathsLists();
+        List<Path>[] equalsPathLists = fileSystem.getIdenticalFileLists();
 
-        for (int i = 1; i < equalsPathLists.size(); i++) {
-            List<Path> fileList1 = equalsPathLists.get(i);
+        for (int i = 1; i < equalsPathLists.length; i++) {
+            List<Path> fileList1 = equalsPathLists[i];
             for (int j = 0; j < i; j++) {
-                List<Path> fileList2 = equalsPathLists.get(j);
+                List<Path> fileList2 = equalsPathLists[j];
                 for (int k = 0; k < fileList1.size(); k++) {
                     for (int l = 0; l < fileList2.size(); l++) {
                         if (k == l)
@@ -56,14 +58,18 @@ public class DUFileTest {
                 }
             }
         }
-
     }
 
     @Test
     @Order(3)
-    private void notDirectoryException() {
-        Path path = Path.of("C:\\Users\\sidey\\programming\\java\\study\\oop_java\\OOP_Java_Task1\\.atest\\dir\\link\\wlink\\link\\wlink\\link\\text.txt");
-        DUFile file = DUFile.readFile(path);
+    @DisplayName("Check wrong files")
+    void wrongPathTest() {
+        DUFile wrongFile = DUFile.readFile(fileSystem.getWrongPath());
+        assertEquals(wrongFile.getClass(), WrongDUFile.class, "Wrong file class");
+        assertEquals(((WrongDUFile)wrongFile).getPathException().getCause().getClass(), NoSuchFileException.class, "Wrong exception class");
+        DUFile wrongLink = DUFile.readFile(fileSystem.getWrongPathLink());
+        assertEquals(wrongLink.getClass(), LinkDUFile.class, "Wrong file class");
+        assertEquals(DUFile.readFile(((LinkDUFile)wrongLink).getReference()), wrongFile, "Wrong linked file");
     }
 
     private void checkFileEquals(Path p1, Path p2) {
@@ -73,6 +79,10 @@ public class DUFileTest {
                 "Compare files\n " +
                 p1 + ": " + f1.toString() + "\n" +
                 p2 + ": " + f2.toString() + "\n");
+        assertEquals(f1.hashCode(), f2.hashCode(),
+                "Compare files hash\n " +
+                        p1 + ": " + f1.hashCode() + "\n" +
+                        p2 + ": " + f2.hashCode() + "\n");
     }
 
     private void checkFileNotEquals(Path p1, Path p2) {
