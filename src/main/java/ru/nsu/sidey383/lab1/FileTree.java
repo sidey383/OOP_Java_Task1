@@ -105,7 +105,7 @@ public class FileTree {
         }
 
         @Override
-        public void postVisitDirectory(ParentDUFile directory) {
+        public void postVisitParentFile(ParentDUFile directory) {
             addChildToParent(directory);
         }
 

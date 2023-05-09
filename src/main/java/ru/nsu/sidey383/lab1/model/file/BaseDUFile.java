@@ -47,7 +47,7 @@ public abstract class BaseDUFile implements DUFile {
     public String toString() {
         return this.getClass().getSimpleName() + "{" +
                 "size=" + getSize() +
-                ", path= " + getPath() +
+                ", path=" + getPath() +
                 ", parent=" + getParent().map(ParentDUFile::getPath).map(Object::toString).orElse("") +
                 '}';
     }

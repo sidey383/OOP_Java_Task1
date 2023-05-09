@@ -33,7 +33,7 @@ public class DUSystemFileWalker {
                         visitFile(iterator.next(), queue, node.getParent());
                     } else {
                         suppressedNodeClose(queue.removeLast());
-                        visitor.postVisitDirectory(node.getParent());
+                        visitor.postVisitParentFile(node.getParent());
                     }
                 }
             } finally {

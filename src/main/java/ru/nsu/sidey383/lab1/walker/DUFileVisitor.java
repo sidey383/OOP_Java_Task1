@@ -26,7 +26,7 @@ public interface DUFileVisitor {
      * Вызывается после обхода всех потомков этой директории.
      * <p>Не вызывается после возвращения {@link DUAction#STOP} из {@link DUFileVisitor#preVisitParentFile(ParentDUFile)}
      */
-    void postVisitDirectory(ParentDUFile directory);
+    void postVisitParentFile(ParentDUFile directory);
 
     /**
      * Вызывается при ошибке чтения метаданных файла.

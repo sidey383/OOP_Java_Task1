@@ -1,7 +1,6 @@
 package ru.nsu.sidey383.lab1.model.file;
 
 import org.junit.jupiter.api.*;
-import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import ru.nsu.sidey383.lab1.model.file.base.LinkDUFile;
 import ru.nsu.sidey383.lab1.model.file.base.WrongDUFile;
@@ -9,6 +8,8 @@ import ru.nsu.sidey383.lab1.model.file.base.WrongDUFile;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @Order(2)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -65,10 +66,10 @@ public class DUFileTest {
     @DisplayName("Check wrong files")
     void wrongPathTest() {
         DUFile wrongFile = DUFile.readFile(fileSystem.getWrongPath());
-        assertEquals(wrongFile.getClass(), WrongDUFile.class, "Wrong file class");
+        assertEquals(wrongFile.getClass(), WrongDUFile.class, "Wrong file " + wrongFile + " class");
         assertEquals(((WrongDUFile)wrongFile).getPathException().getCause().getClass(), NoSuchFileException.class, "Wrong exception class");
         DUFile wrongLink = DUFile.readFile(fileSystem.getWrongPathLink());
-        assertEquals(wrongLink.getClass(), LinkDUFile.class, "Wrong file class");
+        assertEquals(wrongLink.getClass(), LinkDUFile.class, "Wrong file " + wrongLink + " class");
         assertEquals(DUFile.readFile(((LinkDUFile)wrongLink).getReference()), wrongFile, "Wrong linked file");
     }
 
