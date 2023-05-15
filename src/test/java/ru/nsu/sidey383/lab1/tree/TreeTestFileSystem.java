@@ -1,4 +1,4 @@
-package ru.nsu.sidey383.lab1.walker;
+package ru.nsu.sidey383.lab1.tree;
 
 import ru.nsu.sidey383.lab1.core.FileSystemGenerator;
 
@@ -8,7 +8,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class FirstWalkerTestFileSystem extends FileSystemGenerator {
+public class TreeTestFileSystem extends FileSystemGenerator {
 
     private final Map<Path, Set<Path>> parentMap = new HashMap<>();
 
@@ -19,8 +19,6 @@ public class FirstWalkerTestFileSystem extends FileSystemGenerator {
     private final Set<Path> allFiles = new HashSet<>();
 
     private final Set<Path> allLinks = new HashSet<>();
-
-    private final Map<Path, Integer> fileSize = new HashMap<>();
 
     private void addParentAndChild(Path parent, Path child) {
 
@@ -36,8 +34,6 @@ public class FirstWalkerTestFileSystem extends FileSystemGenerator {
     @Override
     protected void createFileTree(Path root) throws Exception {
 
-        fileSize.put(root, 500);
-
         for (int i = 0; i < 5; i++) {
             Path folder = root.resolve("folder" + i);
             Path rootLink = folder.resolve("rootLink");
@@ -45,12 +41,10 @@ public class FirstWalkerTestFileSystem extends FileSystemGenerator {
 
             Files.createDirectory(folder);
             addParentAndChild(root, folder);
-            fileSize.put(folder, 100);
 
             Files.createSymbolicLink(rootLink, root);
             addParentAndChild(folder, rootLink);
             addParentAndChild(rootLink, root);
-            fileSize.put(rootLink, 0);
 
             for (int j = 0; j < 5; j++) {
                 Path folderLink = folder.resolve("folder"+j+"Link");
@@ -65,26 +59,19 @@ public class FirstWalkerTestFileSystem extends FileSystemGenerator {
                 Files.createSymbolicLink(folderLink, linkedFolder);
                 addParentAndChild(folder, folderLink);
                 addParentAndChild(folderLink, linkedFolder);
-                fileSize.put(folderLink, 0);
 
                 Files.createFile(file);
                 addParentAndChild(folder, file);
                 Files.write(file, new byte[20]);
-                fileSize.put(file, 20);
 
                 Files.createDirectories(emptyFolder);
                 addParentAndChild(folder, emptyFolder);
-                fileSize.put(emptyFolder, 0);
             }
         }
     }
 
     public boolean isParent(Path child, Path parent) {
         return parentMap.containsKey(child) && parentMap.get(child).contains(parent);
-    }
-
-    public Integer getSize(Path file) {
-        return fileSize.get(file);
     }
 
     public boolean isAllChildren(Path parent, Collection<Path> children) {

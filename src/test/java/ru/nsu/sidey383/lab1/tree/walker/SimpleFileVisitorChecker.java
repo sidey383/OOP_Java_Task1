@@ -1,4 +1,4 @@
-package ru.nsu.sidey383.lab1.walker;
+package ru.nsu.sidey383.lab1.tree.walker;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -6,6 +6,9 @@ import ru.nsu.sidey383.lab1.model.file.DUFile;
 import ru.nsu.sidey383.lab1.model.file.DUFileType;
 import ru.nsu.sidey383.lab1.model.file.ParentDUFile;
 import ru.nsu.sidey383.lab1.model.file.exception.DUPathException;
+import ru.nsu.sidey383.lab1.tree.TreeTestFileSystem;
+import ru.nsu.sidey383.lab1.walker.DUAction;
+import ru.nsu.sidey383.lab1.walker.DUFileVisitor;
 
 import java.nio.file.Path;
 import java.util.stream.Collectors;
@@ -15,9 +18,9 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 public class SimpleFileVisitorChecker implements DUFileVisitor {
 
-    private final FirstWalkerTestFileSystem fileSystem;
+    private final TreeTestFileSystem fileSystem;
 
-    public SimpleFileVisitorChecker(FirstWalkerTestFileSystem fileSystem) {
+    public SimpleFileVisitorChecker(TreeTestFileSystem fileSystem) {
         this.fileSystem = fileSystem;
     }
 

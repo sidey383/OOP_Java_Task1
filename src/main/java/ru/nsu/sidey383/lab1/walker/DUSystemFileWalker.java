@@ -21,9 +21,8 @@ public class DUSystemFileWalker {
     }
 
     private void walk() {
-        if (rootFile instanceof ParentDUFile rootDir) {
+        if (rootFile instanceof ParentDUFile rootDir && visitor.preVisitParentFile(rootDir) == DUAction.CONTINUE) {
             Deque<DUWalkerNode> queue = new ArrayDeque<>();
-            visitor.preVisitParentFile(rootDir);
             try {
                 initQueue(queue, rootDir);
                 while (!queue.isEmpty()) {

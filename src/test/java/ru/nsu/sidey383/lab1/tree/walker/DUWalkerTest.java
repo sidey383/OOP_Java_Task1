@@ -1,4 +1,4 @@
-package ru.nsu.sidey383.lab1.walker;
+package ru.nsu.sidey383.lab1.tree.walker;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -8,6 +8,10 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import ru.nsu.sidey383.lab1.model.file.DUFile;
 import ru.nsu.sidey383.lab1.model.file.ParentDUFile;
 import ru.nsu.sidey383.lab1.model.file.exception.DUPathException;
+import ru.nsu.sidey383.lab1.tree.TreeTestFileSystem;
+import ru.nsu.sidey383.lab1.walker.DUAction;
+import ru.nsu.sidey383.lab1.walker.DUFileVisitor;
+import ru.nsu.sidey383.lab1.walker.DUSystemFileWalker;
 
 import java.nio.file.Path;
 
@@ -16,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class DUWalkerTest {
 
     @RegisterExtension
-    private static final FirstWalkerTestFileSystem fileSystem = new FirstWalkerTestFileSystem();
+    public static final TreeTestFileSystem fileSystem = new TreeTestFileSystem();
 
     @Test
     @DisplayName("Checking the passage through files without clicking on links")

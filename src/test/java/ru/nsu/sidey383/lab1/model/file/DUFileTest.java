@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class DUFileTest {
 
     @RegisterExtension
-    private static final FileTestFileSystem fileSystem = new FileTestFileSystem();
+    public static final FileTestFileSystem fileSystem = new FileTestFileSystem();
 
     @Test
     @Order(1)
