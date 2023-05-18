@@ -95,8 +95,6 @@ public class DiskUsageOptions implements FilesPrintOptions {
 
         public DiskUsageOptionsBuilder withMaxDepth(int maxDepth) {
             if (maxDepth <= 0) {
-                // CR: why we use IllegalArgumentException and not DUOptionReadException?
-                // CR: also one of them is checked and another is unchecked
                 throw new IllegalArgumentException("Max depth must de over zero");
             }
             this.maxDepth = maxDepth;
@@ -121,7 +119,7 @@ public class DiskUsageOptions implements FilesPrintOptions {
 
         public DiskUsageOptionsBuilder withSizeSuffix(SizeSuffix sizeSuffix) {
             if (sizeSuffix == null) {
-                throw new IllegalArgumentException("File path can't be null");
+                throw new IllegalArgumentException("Size suffix can't be null");
             }
             this.sizeSuffix = sizeSuffix;
             return this;
@@ -132,15 +130,16 @@ public class DiskUsageOptions implements FilesPrintOptions {
             return this;
         }
 
-        // CR: tests
         public DiskUsageOptionsBuilder applyConsoleArgs(String[] args) throws DUOptionReadException {
             for (int i = 0; i < args.length; i++) {
                 switch (args[i]) {
                     case "--depth" -> {
-                        if (++i < args.length) {
-                            withMaxDepth(parsePositiveInt(args[i]));
-                        } else {
+                        if (++i >= args.length)
                             throw new DUOptionReadException(getDepthError());
+                        try {
+                            withMaxDepth(parsePositiveInt(args[i]));
+                        } catch (IllegalArgumentException e) {
+                            throw new DUOptionReadException(getDepthError(), e);
                         }
                     }
                     case "-L" -> withFollowLinks(true);
@@ -156,7 +155,11 @@ public class DiskUsageOptions implements FilesPrintOptions {
                     case "--limit" -> {
                         if (++i >= args.length)
                             throw new DUOptionReadException(getLimitError());
-                        withFileInDirLimit(parsePositiveInt(args[i]));
+                        try {
+                            withFileInDirLimit(parsePositiveInt(args[i]));
+                        } catch (IllegalArgumentException e) {
+                            throw new DUOptionReadException(getDepthError(), e);
+                        }
                     }
                     case "-h", "-help" -> setHelp(true);
                     default -> {

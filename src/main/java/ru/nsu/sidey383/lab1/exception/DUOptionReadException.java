@@ -6,6 +6,10 @@ public class DUOptionReadException extends Exception {
         super(message);
     }
 
+    public DUOptionReadException(String message, Throwable throwable) {
+        super(message, throwable);
+    }
+
 
 
 }
