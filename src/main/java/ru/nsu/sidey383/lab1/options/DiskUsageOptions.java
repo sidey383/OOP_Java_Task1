@@ -95,6 +95,8 @@ public class DiskUsageOptions implements FilesPrintOptions {
 
         public DiskUsageOptionsBuilder withMaxDepth(int maxDepth) {
             if (maxDepth <= 0) {
+                // CR: why we use IllegalArgumentException and not DUOptionReadException?
+                // CR: also one of them is checked and another is unchecked
                 throw new IllegalArgumentException("Max depth must de over zero");
             }
             this.maxDepth = maxDepth;

@@ -15,7 +15,7 @@ public interface DUWalkerNode extends Closeable {
 
     Iterator<Path> getPathIterator();
 
-    static DUWalkerNode createWalker(ParentDUFile file) throws DUPathException {
+    static DUWalkerNode create(ParentDUFile file) throws DUPathException {
         if (file instanceof DirectoryDUFile dir) {
             return new DUDirectoryNode(dir);
         }

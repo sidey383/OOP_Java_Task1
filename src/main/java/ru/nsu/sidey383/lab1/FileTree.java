@@ -28,6 +28,8 @@ public class FileTree {
     }
 
     public static FileTree calculateTree(Path path, boolean followLinks) {
+        // CR(minor): i think it would be better to create FIleTree after walkFiles:
+        // CR(minor): this way we avoid non-static class
         FileTree tree = new FileTree(followLinks);
         tree.walker = DUSystemFileWalker.walkFiles(path, tree.new TreeVisitor());
         return tree;
@@ -60,6 +62,7 @@ public class FileTree {
         /**
          * The key and value in this map are the same object
          **/
+        // CR: IdentityHashMap? (haven't checked, mb ok)
         private final Map<DUFile, DUFile> visitedLinks = new HashMap<>();
 
         void readErrors(DUFile f) {
@@ -90,6 +93,7 @@ public class FileTree {
             readErrors(directory);
             if (directory.getFileType() == DUFileType.LINK) {
                 if (followLinks) {
+                    // CR: let's discuss on next offline code review
                     DUFile link = visitedLinks.merge(directory, directory, (duFile, duFile2) -> {
                         duFile2.getParent().ifPresent(p -> p.addChild(duFile));
                         return duFile;

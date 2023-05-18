@@ -44,6 +44,7 @@ public class LinkDUFile extends BaseDUFile implements ReferenceDUFile {
         singletonCollection.clear();
     }
 
+    // CR: seems redundant, maybe store Collections.singleton() or null instead?
     private static class SingletonCollection<T> implements Collection<T> {
 
         private T value;

@@ -50,7 +50,7 @@ public class DUSystemFileWalker {
             file.setParent(parent);
             if (file instanceof ParentDUFile parentFile) {
                 if (visitor.preVisitParentFile(parentFile) == DUAction.CONTINUE) {
-                    queue.addLast(DUWalkerNode.createWalker(parentFile));
+                    queue.addLast(DUWalkerNode.create(parentFile));
                 }
             } else {
                 visitor.visitFile(file);
@@ -62,7 +62,7 @@ public class DUSystemFileWalker {
 
     private void initQueue(Deque<DUWalkerNode> queue, ParentDUFile rootDir) {
         try {
-            queue.add(DUWalkerNode.createWalker(rootDir));
+            queue.add(DUWalkerNode.create(rootDir));
         } catch (DUPathException e) {
             visitor.pathVisitError(rootDir.getPath(), e);
         }

@@ -38,6 +38,7 @@ public class FileTreePrinter {
             if (now instanceof ParentDUFile dir && dirStack.size() < maxDepth) {
                 dirStack.add(
                         dir.getChildren().stream()
+                                // CR: Comparator.comparingLong()?
                                 .sorted((f1, f2) -> (int) Math.signum(f2.getSize() - f1.getSize()))
                                 .limit(fileInDirLimit)
                                 .iterator()
